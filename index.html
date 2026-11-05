@@ -3,86 +3,95 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0b1a24">
+<meta name="theme-color" content="#0a1e2a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Musicale NW · Sile Walking</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
 :root{
-  --bg:#0b1a24; --card:#132a38; --card2:#1a3647; --line:#24465b;
-  --text:#eef6fa; --muted:#93b2c3; --blue:#2aa7df; --green:#3fc27a; --red:#ff5d5d; --yellow:#ffd23f;
+  /* palette Sile Walking: giallo anello, azzurro cielo, rosso maglia, marrone scritte */
+  --brand-yellow:#efe158; --brand-sky:#68d6fe; --brand-red:#d8251c; --brand-brown:#3e332e;
+  --bg:#0a1e2a; --card:#10293a; --card2:#163749; --line:#24495f;
+  --text:#f4f8fa; --muted:#9db9c9;
+  --blue:var(--brand-sky); --yellow:var(--brand-yellow); --red:#ff6a5c; --green:var(--brand-sky);
+  --on-accent:var(--brand-brown);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px}
 body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
-header h1{font-size:18px;margin:0;flex:1}
-header small{color:var(--muted);font-weight:400}
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top));position:sticky;top:0;background:var(--bg);z-index:5;box-shadow:inset 0 -2px 0 var(--brand-yellow)}
+header .logo{width:44px;height:44px;flex:none;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,.45)}
+header h1{font-size:19px;margin:0;flex:1;line-height:1.15;letter-spacing:.2px}
+header small{display:block;color:var(--brand-yellow);font-weight:600;font-size:12px;letter-spacing:.6px;text-transform:uppercase}
 main{padding:14px 16px;max-width:900px;margin:0 auto}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#081520;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:10}
-nav button{flex:1;background:none;border:0;color:var(--muted);padding:10px 2px 12px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#071621;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:10}
+nav button{flex:1;background:none;border:0;border-radius:0;color:var(--muted);padding:10px 2px 12px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px}
 nav button span{font-size:20px}
-nav button.on{color:var(--blue)}
+nav button.on{color:var(--brand-yellow);box-shadow:inset 0 3px 0 var(--brand-yellow)}
 .view{display:none}.view.on{display:block}
 h2{font-size:17px;margin:18px 0 10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .grow{flex:1}
 button,.btn{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:15px;cursor:pointer}
-button.pri{background:var(--blue);border-color:var(--blue);color:#04121b;font-weight:700}
-button.ok{background:var(--green);border-color:var(--green);color:#04121b;font-weight:700}
+button.pri{background:var(--brand-yellow);border-color:var(--brand-yellow);color:var(--on-accent);font-weight:700}
+button.ok{background:var(--brand-sky);border-color:var(--brand-sky);color:var(--on-accent);font-weight:700}
 button.danger{color:var(--red)}
 button.small{padding:6px 10px;font-size:13px}
 button:disabled{opacity:.4}
-input,select,textarea{background:#0c2130;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:15px;width:100%}
-input[type=range]{padding:0}
-input[type=checkbox]{width:22px;height:22px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--brand-sky);outline-offset:2px}
+input,select,textarea{background:#0b2231;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:15px;width:100%}
+input[type=range]{padding:0;accent-color:var(--brand-sky)}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--brand-yellow)}
 label{font-size:13px;color:var(--muted);display:block;margin:10px 0 4px}
 .muted{color:var(--muted);font-size:13px}
 .chip{display:inline-block;padding:3px 9px;border-radius:999px;background:var(--card2);border:1px solid var(--line);font-size:12px;color:var(--muted)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .presets button{flex:1;min-width:90px;padding:8px 6px;font-size:13px}
 /* --- display serata --- */
-#stage{background:linear-gradient(180deg,#0f2635,#0b1a24);border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center}
+#stage{position:relative;background:radial-gradient(120% 70% at 50% 0%,rgba(104,214,254,.16),transparent 65%),linear-gradient(180deg,#0f2a3b,#0a1e2a);border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center}
 #stTitle{font-size:clamp(26px,7vw,52px);font-weight:800;line-height:1.1;margin:4px 0}
 #stDesc{color:var(--muted);font-size:15px;min-height:20px;max-width:640px;margin:0 auto}
 #stCount{font-size:clamp(120px,42vw,280px);font-weight:900;line-height:1;margin:6px 0;font-variant-numeric:tabular-nums;color:var(--text);transition:transform .06s}
-#stCount.one{color:var(--blue)}
-#stCount.last{color:var(--yellow)}
+#stCount.one{color:var(--brand-yellow)}
+#stCount.last{color:var(--red)}
 #stCount.pop{transform:scale(1.06)}
+#stCount .stLogo{display:block;width:min(56vw,230px);height:auto;margin:10px auto;filter:drop-shadow(0 6px 24px rgba(104,214,254,.28))}
 #dots{display:flex;justify-content:center;gap:8px;margin:4px 0 10px}
 #dots i{width:16px;height:16px;border-radius:50%;background:var(--line)}
-#dots i.on{background:var(--blue)}
+#dots i.on{background:var(--brand-sky)}
+#dots i.on:first-child{background:var(--brand-yellow)}
 #stInfo{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
 #stNext{margin-top:12px;font-size:16px;color:var(--muted)}
 #stNext b{color:var(--text)}
-#stNext.alert{color:var(--yellow)}
-#stNext.alert b{color:var(--yellow)}
+#stNext.alert{color:var(--brand-yellow)}
+#stNext.alert b{color:var(--brand-yellow)}
 .bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:10px 0 0}
-.bar div{height:100%;background:var(--green);width:0}
+.bar div{height:100%;background:linear-gradient(90deg,var(--brand-sky),var(--brand-yellow));width:0}
 .ctrls{display:flex;gap:10px;justify-content:center;margin:14px 0 4px}
 .ctrls button{font-size:24px;min-width:64px;padding:12px}
-.ctrls button.big{min-width:96px;background:var(--green);color:#04121b;border-color:var(--green)}
+.ctrls button.big{min-width:96px;background:var(--brand-yellow);color:var(--on-accent);border-color:var(--brand-yellow);box-shadow:0 4px 18px rgba(239,225,88,.25)}
 .bpmLive{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px}
-.bpmLive b{font-size:28px;min-width:90px}
+.bpmLive b{font-size:28px;min-width:90px;color:var(--brand-sky)}
 .list .it{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--line)}
 .list .it:last-child{border-bottom:0}
-.list .it.cur{background:#16384b;border-radius:10px}
+.list .it.cur{background:rgba(104,214,254,.12);border-radius:10px;box-shadow:inset 3px 0 0 var(--brand-yellow)}
 .list .it .n{width:26px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
-.tag{font-size:11px;padding:2px 7px;border-radius:6px;background:#0c2130;color:var(--muted);border:1px solid var(--line)}
-.tag.es{color:var(--blue)}.tag.ca{color:var(--green)}.tag.pa{color:var(--yellow)}
-dialog{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:16px;padding:16px;width:min(560px,94vw);max-height:90vh}
+.tag{font-size:11px;padding:2px 7px;border-radius:6px;background:#0b2231;color:var(--muted);border:1px solid var(--line)}
+.tag.es{color:var(--brand-sky)}.tag.ca{color:var(--brand-yellow)}.tag.pa{color:var(--red)}
+dialog{background:var(--card);color:var(--text);border:1px solid var(--line);border-top:3px solid var(--brand-yellow);border-radius:16px;padding:16px;width:min(560px,94vw);max-height:90vh}
 dialog::backdrop{background:rgba(0,0,0,.6)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 #toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;display:none;z-index:50;max-width:90vw}
 .tapbtn{font-size:18px;padding:16px;width:100%}
 .libEx{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .libEx button{font-size:13px;padding:7px 10px}
-.libEx button.on{border-color:var(--blue);color:var(--blue)}
+.libEx button.on{border-color:var(--brand-sky);color:var(--brand-sky)}
 .fullbtn{position:absolute;right:10px;top:10px;padding:6px 10px;font-size:13px}
-#stage{position:relative}
+.credits{display:flex;align-items:center;gap:10px;margin:16px 0 8px}
+.credits img{width:40px;height:40px}
 body.full header,body.full nav,body.full .hideFull{display:none}
 body.full{padding-bottom:0}
 body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-direction:column;justify-content:center}
@@ -90,7 +99,8 @@ body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-dir
 </head>
 <body>
 <header>
-  <h1>🎵 Musicale NW <small>· Sile Walking</small></h1>
+  <img class="logo" src="logo.png" alt="Sile Walking">
+  <h1>Musicale NW<small>Sile Walking · ASD Albaredo</small></h1>
   <span id="hdrState" class="chip">pronto</span>
 </header>
 
@@ -110,7 +120,7 @@ body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-dir
     <div class="chips" style="justify-content:center"><span class="chip" id="stTipo">—</span><span class="chip" id="stBlock"></span></div>
     <div id="stTitle">Pronti?</div>
     <div id="stDesc">Scegli una scaletta e premi ▶</div>
-    <div id="stCount">–</div>
+    <div id="stCount"><img class="stLogo" src="logo.png" alt="Sile Walking"></div>
     <div id="dots"></div>
     <div id="stInfo"><span class="chip" id="stBpm">— bpm</span><span class="chip" id="stProg"></span><span class="chip" id="stSrc"></span></div>
     <div class="bar"><div id="stBar"></div></div>
@@ -204,7 +214,7 @@ body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-dir
     <p class="muted">Salva scalette ed esercizi personali in un file, per conservarli o passarli a un altro istruttore. I brani non sono inclusi.</p>
     <div class="row"><button id="btnBackup">Scarica backup</button><button id="btnRestore">Ripristina backup</button><input type="file" id="fileRestore" accept=".json" hidden></div>
   </div>
-  <p class="muted">Musicale NW v1.0 · Sile Walking – ASD Albaredo Insieme</p>
+  <div class="credits"><img src="logo.png" alt=""><p class="muted" style="margin:0">Musicale NW v1.1 · Sile Walking – ASD Albaredo Insieme</p></div>
 </section>
 </main>
 
@@ -741,7 +751,7 @@ function prepareStage(lib) {
   if (!lib) P.sc = sc ? clone(sc) : null; P.i = 0;
   $('#stTitle').textContent = lib ? 'Modalità libera' : 'Pronti?';
   $('#stDesc').textContent = lib ? 'Scegli BPM, musica e movimento, poi premi ▶' : (sc ? sc.nome : 'Crea una scaletta');
-  $('#stCount').textContent = '–'; $('#stCount').className = ''; $('#stBar').style.width = '0';
+  $('#stCount').innerHTML = '<img class="stLogo" src="logo.png" alt="Sile Walking">'; $('#stCount').className = ''; $('#stBar').style.width = '0';
   $('#stNext').textContent = ''; $('#dots').innerHTML = '';
   const b0 = P.sc && P.sc.blocchi[0];
   $('#stBpm').textContent = b0 && b0.bpm ? b0.bpm + ' bpm' : '— bpm'; $('#bpmLive').textContent = $('#stBpm').textContent;
