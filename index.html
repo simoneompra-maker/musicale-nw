@@ -214,7 +214,7 @@ body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-dir
     <p class="muted">Salva scalette ed esercizi personali in un file, per conservarli o passarli a un altro istruttore. I brani non sono inclusi.</p>
     <div class="row"><button id="btnBackup">Scarica backup</button><button id="btnRestore">Ripristina backup</button><input type="file" id="fileRestore" accept=".json" hidden></div>
   </div>
-  <div class="credits"><img src="logo.png" alt=""><p class="muted" style="margin:0">Musicale NW v1.1 · Sile Walking – ASD Albaredo Insieme</p></div>
+  <div class="credits"><img src="logo.png" alt=""><p class="muted" style="margin:0">Musicale NW v1.2 · Sile Walking – ASD Albaredo Insieme</p></div>
 </section>
 </main>
 
@@ -285,19 +285,20 @@ const PATTERNS = { leggero: 'Leggero', dance: 'Dance 4/4', tribale: 'Tribale', c
 const PRESETS = [ { n: 'Riscaldamento', v: 105 }, { n: 'Ritmica', v: 120 }, { n: 'Sostenuto', v: 130 }, { n: 'Defaticamento', v: 95 } ];
 
 const BASE_EX = [
-  { id: 'marcia', nome: 'Marcia sul posto', cat: 'risc', tempi: 8, desc: 'Marcia sul posto aumentando piano piano l’ampiezza del passo; braccia che oscillano naturali.' },
-  { id: 'caviglie', nome: 'Rotazioni delle caviglie', cat: 'risc', tempi: 4, desc: 'Appoggio sui bastoncini, punta a terra: 4 cerchi con una caviglia, poi cambio piede.' },
-  { id: 'spalle', nome: 'Rotazioni delle spalle', cat: 'risc', tempi: 4, desc: 'Braccia rilassate lungo il corpo: 4 rotazioni in avanti, 4 indietro.' },
-  { id: 'braccia_circ', nome: 'Circonduzioni delle braccia', cat: 'risc', tempi: 8, desc: 'Braccia tese, cerchi ampi e lenti: 8 tempi avanti, 8 indietro.' },
-  { id: 'collo', nome: 'Rotazione lenta del collo', cat: 'risc', tempi: 8, desc: 'Movimento lento e controllato, un giro completo in 8 tempi, poi nell’altro verso.' },
-  { id: 'busto', nome: 'Torsioni del busto', cat: 'risc', tempi: 4, desc: 'Bastoncini uniti appoggiati dietro le spalle: ruota il busto a destra su 1-2, a sinistra su 3-4. Bacino fermo.' },
-  { id: 'ginocchia', nome: 'Ginocchia al petto', cat: 'risc', tempi: 4, desc: 'Appoggio sui bastoncini: porta un ginocchio verso il petto su 1-2, l’altro su 3-4.' },
-  { id: 'slanci', nome: 'Slanci della gamba', cat: 'risc', tempi: 4, desc: 'In appoggio sui bastoncini, busto dritto: slancio avanti su 1-2 e indietro su 3-4. Poi cambio gamba.' },
-  { id: 'spinta_bast', nome: 'Spinta sui bastoncini', cat: 'braccia', tempi: 4, desc: 'Puntali a metà piede, braccia distese: spingi verso il basso sul lacciolo su 1-2, rilascia su 3-4. Mano aperta.' },
-  { id: 'piegamenti_braccia', nome: 'Piegamenti delle braccia', cat: 'braccia', tempi: 4, desc: 'Mani sulle impugnature, busto inclinato in avanti: piega i gomiti su 1-2, distendi su 3-4.' },
-  { id: 'estensione', nome: 'Estensione del braccio indietro', cat: 'braccia', tempi: 8, desc: 'Braccio disteso che spinge indietro fino alla mano aperta; 4 tempi un braccio, 4 l’altro.' },
-  { id: 'sopra_testa', nome: 'Bastoncini sopra la testa', cat: 'braccia', tempi: 8, desc: 'Bastoncini uniti tra le mani: sali sopra la testa in 4 tempi, scendi in 4. Spalle basse.' },
-  { id: 'squat', nome: 'Piegamenti delle gambe', cat: 'gambe', tempi: 4, desc: 'Bastoncini davanti per appoggio: scendi su 1-2 come per sederti, risali su 3-4. Ginocchia sopra i piedi.' },
+  { id: 'ginocchia', nome: 'Marcia con ginocchia alte', cat: 'risc', tempi: 8, desc: 'Bastoncini impugnati, puntali a terra poco davanti ai piedi per appoggiarsi. Marcia sul posto lenta: il ginocchio sale fin dove arriva comodo, idealmente all’altezza dell’anca, poi torna giù; si alterna. Busto dritto. Es.: destro su in 2 tempi, giù in 2, poi il sinistro. Da fare prima della marcia con le braccia.' },
+  { id: 'marcia', nome: 'Marcia sul posto con le braccia', cat: 'risc', tempi: 8, desc: 'Marcia sul posto con le braccia che oscillano in opposizione alle gambe, come nel gesto del Nordic Walking. Si parte con un movimento piccolo e lo si allarga fino alla mano che si apre dietro. Es.: piccolo su 1-4, ampio su 5-8.' },
+  { id: 'caviglie', nome: 'Rotazioni delle caviglie', cat: 'risc', tempi: 8, desc: 'In appoggio sui bastoncini, punta del piede a terra: cerchi lenti con la caviglia, poi nel verso opposto; poi si cambia piede. Es.: un cerchio ogni 2 tempi, 4 in un verso e 4 nell’altro.' },
+  { id: 'spalle', nome: 'Rotazioni delle spalle', cat: 'risc', tempi: 8, desc: 'Braccia rilassate lungo il corpo: rotazioni ampie delle spalle, prima all’indietro poi in avanti. Le spalle salgono verso le orecchie, vanno indietro e scendono basse. Es.: una rotazione ogni 2 tempi, 4 indietro e 4 avanti.' },
+  { id: 'braccia_circ', nome: 'Circonduzioni delle braccia', cat: 'risc', tempi: 8, desc: 'Bastoncini appoggiati a terra, un braccio di distanza dai vicini. Braccia tese, cerchi ampi, prima all’indietro poi in avanti. Es.: un cerchio ogni 2 tempi, 4 indietro e 4 avanti.' },
+  { id: 'aperture', nome: 'Aperture e chiusure delle braccia', cat: 'risc', tempi: 4, desc: 'Bastoncini sganciati dai laccioli, uno per mano, impugnati a metà asta. Braccia distese e aperte in orizzontale all’altezza delle spalle: si chiudono davanti fino a far quasi toccare i bastoncini, poi si riaprono. Braccia sempre distese, spalle basse. Es.: chiudi su 1-2, apri su 3-4.' },
+  { id: 'apertura_discesa', nome: 'Apertura, chiusura e discesa', cat: 'risc', tempi: 8, desc: 'Bastoncini sganciati, impugnati a metà asta, braccia aperte in orizzontale: chiudi davanti, riapri, scendi sui fianchi, risali aperto e ripeti. Braccia sempre distese. Es.: chiudi 1-2, apri 3-4, scendi 5-6, risali 7-8.' },
+  { id: 'collo', nome: 'Collo in tre direzioni', cat: 'risc', tempi: 8, desc: 'Bastoncini a terra, spalle basse, movimenti lenti: guardi a destra, guardi a sinistra, orecchio verso la spalla destra, orecchio verso la sinistra. Mai la testa all’indietro. Es.: 2 tempi per movimento.' },
+  { id: 'busto', nome: 'Torsioni del busto', cat: 'risc', tempi: 4, desc: 'Bastoncini uniti, tenuti dietro la schiena all’altezza della vita e trattenuti nell’incavo dei gomiti. Ruoti il busto a destra, torni al centro, ruoti a sinistra, torni al centro. Bacino fermo, petto aperto. Es.: un movimento per tempo.' },
+  { id: 'slanci', nome: 'Pendolo avanti-indietro della gamba', cat: 'risc', tempi: 8, desc: 'Bastoncini impugnati, puntali a terra per l’appoggio, busto dritto. La gamba oscilla come un pendolo avanti e indietro, poi si cambia gamba. Indietro ci si ferma prima che la schiena si inarchi. Es.: avanti su 1, indietro su 2, 4 volte in 8 tempi.' },
+  { id: 'pendolo_lat', nome: 'Pendolo laterale della gamba', cat: 'risc', tempi: 8, desc: 'Bastoncini impugnati, puntali a terra per l’appoggio, busto dritto. La gamba oscilla verso l’esterno e rientra davanti all’altra, poi si cambia gamba. Es.: fuori su 1, dentro su 2, 4 volte in 8 tempi.' },
+  { id: 'estensione', nome: 'Estensione del braccio indietro', cat: 'braccia', tempi: 8, desc: 'Bastoncini agganciati, da fermi in passo con la gamba sinistra avanti. Il braccio destro va indietro scorrendo vicino al fianco fino a dietro l’anca, con la mano che si apre, e torna avanti; poi si cambiano gamba e braccio. Si fa anche senza bastoncini: stesso gesto, mano che si apre dietro l’anca. Es.: indietro su 1, avanti su 2, 4 volte in 8 tempi.' },
+  { id: 'braccia_alt', nome: 'Braccia alternate come in camminata', cat: 'braccia', tempi: 8, desc: 'Bastoncini agganciati, da fermi in passo. A ogni battito un braccio va avanti e l’altro indietro, con la mano che si apre dietro: il ritmo della camminata senza spostarsi. Si fa anche senza bastoncini: stesso gesto, mano che si apre dietro l’anca.' },
+  { id: 'squat', nome: 'Piegamenti delle gambe', cat: 'gambe', tempi: 4, desc: 'Bastoncini impugnati, puntali a terra davanti ai piedi per appoggiarsi, piedi larghi quanto le spalle. Scendi come per sederti su una sedia, spingendo il bacino indietro, poi risali. Ginocchia in linea con le punte dei piedi, schiena dritta. Ci si ferma a metà o dove si sta comodi. Es.: giù in 2 tempi, su in 2.' },
   { id: 'affondi', nome: 'Affondi alternati', cat: 'gambe', tempi: 8, desc: 'Passo lungo in avanti e piega le ginocchia: 4 tempi con la destra avanti, 4 con la sinistra.' },
   { id: 'affondi_torsione', nome: 'Affondi con torsione del busto', cat: 'gambe', tempi: 8, desc: 'In affondo ruota il busto verso la gamba avanti; 4 tempi per lato.' },
   { id: 'punte', nome: 'Sollevamenti sulle punte', cat: 'gambe', tempi: 4, desc: 'Sali sulle punte su 1-2, scendi lento su 3-4. Appoggio leggero ai bastoncini.' },
@@ -305,7 +306,6 @@ const BASE_EX = [
   { id: 'passo_spinta', nome: 'Passo e spinta a tempo', cat: 'coord', tempi: 4, desc: 'Camminata Nordic: il bastoncino tocca terra sul battito, braccio opposto alla gamba.' },
   { id: 'monobraccio', nome: 'Andatura monobraccio', cat: 'coord', tempi: 8, desc: 'Un solo bastoncino: 8 tempi con un braccio, poi cambio. Attenzione al braccio che lavora.' },
   { id: 'camminata_zero', nome: 'Camminata zero', cat: 'coord', tempi: 8, desc: 'Bastoncini lasciati strisciare, mani aperte: senti il bastoncino che si aggancia al terreno.' },
-  { id: 'saltellato', nome: 'Passo saltellato alternato', cat: 'coord', tempi: 8, desc: 'Passo classico con un piccolo salto, ginocchia morbide. Solo per chi se la sente.' },
   { id: 'respiro', nome: 'Respirazione profonda', cat: 'defat', tempi: 8, desc: 'Inspira dal naso su 1-4 alzando le braccia, espira dalla bocca su 5-8 abbassandole.' },
   { id: 'all_polpacci', nome: 'Allungamento dei polpacci', cat: 'defat', tempi: 8, desc: 'Mani sui bastoncini, una gamba indietro tallone a terra: tieni 8 tempi, poi cambio.' },
   { id: 'all_spalle', nome: 'Allungamento spalle e dorso', cat: 'defat', tempi: 8, desc: 'Bastoncini davanti, busto in avanti a squadra, schiena lunga: tieni e respira.' },
@@ -318,16 +318,16 @@ function scalettaTipo() {
     id: uid(), nome: 'Serata musicale tipo',
     blocchi: [
       B({ tipo: 'camminata', titolo: 'Camminata di riscaldamento', minuti: 3, tempi: 8, bpm: 100 }),
-      B({ tipo: 'esercizio', ex: 'caviglie', tempi: 4, misure: 4, bpm: 100 }),
-      B({ tipo: 'esercizio', ex: 'spalle', tempi: 4, misure: 4, bpm: 100 }),
+      B({ tipo: 'esercizio', ex: 'caviglie', tempi: 8, misure: 2, bpm: 100 }),
+      B({ tipo: 'esercizio', ex: 'spalle', tempi: 8, misure: 2, bpm: 100 }),
       B({ tipo: 'esercizio', ex: 'busto', tempi: 4, misure: 6, bpm: 105 }),
-      B({ tipo: 'esercizio', ex: 'ginocchia', tempi: 4, misure: 6, bpm: 105 }),
+      B({ tipo: 'esercizio', ex: 'ginocchia', tempi: 8, misure: 3, bpm: 105 }),
       B({ tipo: 'camminata', titolo: 'Camminata ritmica', minuti: 10, tempi: 4, bpm: 115 }),
-      B({ tipo: 'esercizio', ex: 'spinta_bast', tempi: 4, misure: 8, bpm: 115 }),
+      B({ tipo: 'esercizio', ex: 'braccia_alt', tempi: 8, misure: 4, bpm: 115 }),
       B({ tipo: 'esercizio', ex: 'squat', tempi: 4, misure: 6, bpm: 115 }),
       B({ tipo: 'camminata', titolo: 'Camminata ritmica', minuti: 10, tempi: 4, bpm: 120, fonte: 'base:dance' }),
       B({ tipo: 'esercizio', ex: 'affondi', tempi: 8, misure: 4, bpm: 120, fonte: 'base:dance' }),
-      B({ tipo: 'esercizio', ex: 'piegamenti_braccia', tempi: 4, misure: 6, bpm: 120, fonte: 'base:dance' }),
+      B({ tipo: 'esercizio', ex: 'aperture', tempi: 4, misure: 6, bpm: 120, fonte: 'base:dance' }),
       B({ tipo: 'pausa', titolo: 'Acqua e fiato', secondi: 60 }),
       B({ tipo: 'camminata', titolo: 'Camminata sostenuta', minuti: 12, tempi: 4, bpm: 128, fonte: 'base:tribale' }),
       B({ tipo: 'esercizio', ex: 'monobraccio', tempi: 8, misure: 4, bpm: 125, fonte: 'base:tribale' }),
@@ -379,7 +379,8 @@ const S = {
 };
 if (!S.scalette || !S.scalette.length) { S.scalette = [scalettaTipo()]; LS.set('scalette', S.scalette); }
 const allEx = () => [...BASE_EX, ...S.customEx];
-const exById = id => allEx().find(e => e.id === id);
+const EX_ALIAS = { spinta_bast: 'braccia_alt', piegamenti_braccia: 'aperture', sopra_testa: 'apertura_discesa', saltellato: 'passo_spinta' };
+const exById = id => allEx().find(e => e.id === id) || allEx().find(e => e.id === EX_ALIAS[id]);
 const saveSc = () => LS.set('scalette', S.scalette);
 const saveOpts = () => LS.set('opts', S.opts);
 
