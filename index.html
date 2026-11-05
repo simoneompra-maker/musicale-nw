@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1a24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Musicale NW · Sile Walking</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#0b1a24; --card:#132a38; --card2:#1a3647; --line:#24465b;
+  --text:#eef6fa; --muted:#93b2c3; --blue:#2aa7df; --green:#3fc27a; --red:#ff5d5d; --yellow:#ffd23f;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px}
+body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+header h1{font-size:18px;margin:0;flex:1}
+header small{color:var(--muted);font-weight:400}
+main{padding:14px 16px;max-width:900px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#081520;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:10}
+nav button{flex:1;background:none;border:0;color:var(--muted);padding:10px 2px 12px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button span{font-size:20px}
+nav button.on{color:var(--blue)}
+.view{display:none}.view.on{display:block}
+h2{font-size:17px;margin:18px 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grow{flex:1}
+button,.btn{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:15px;cursor:pointer}
+button.pri{background:var(--blue);border-color:var(--blue);color:#04121b;font-weight:700}
+button.ok{background:var(--green);border-color:var(--green);color:#04121b;font-weight:700}
+button.danger{color:var(--red)}
+button.small{padding:6px 10px;font-size:13px}
+button:disabled{opacity:.4}
+input,select,textarea{background:#0c2130;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:15px;width:100%}
+input[type=range]{padding:0}
+input[type=checkbox]{width:22px;height:22px}
+label{font-size:13px;color:var(--muted);display:block;margin:10px 0 4px}
+.muted{color:var(--muted);font-size:13px}
+.chip{display:inline-block;padding:3px 9px;border-radius:999px;background:var(--card2);border:1px solid var(--line);font-size:12px;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.presets button{flex:1;min-width:90px;padding:8px 6px;font-size:13px}
+/* --- display serata --- */
+#stage{background:linear-gradient(180deg,#0f2635,#0b1a24);border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center}
+#stTitle{font-size:clamp(26px,7vw,52px);font-weight:800;line-height:1.1;margin:4px 0}
+#stDesc{color:var(--muted);font-size:15px;min-height:20px;max-width:640px;margin:0 auto}
+#stCount{font-size:clamp(120px,42vw,280px);font-weight:900;line-height:1;margin:6px 0;font-variant-numeric:tabular-nums;color:var(--text);transition:transform .06s}
+#stCount.one{color:var(--blue)}
+#stCount.last{color:var(--yellow)}
+#stCount.pop{transform:scale(1.06)}
+#dots{display:flex;justify-content:center;gap:8px;margin:4px 0 10px}
+#dots i{width:16px;height:16px;border-radius:50%;background:var(--line)}
+#dots i.on{background:var(--blue)}
+#stInfo{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+#stNext{margin-top:12px;font-size:16px;color:var(--muted)}
+#stNext b{color:var(--text)}
+#stNext.alert{color:var(--yellow)}
+#stNext.alert b{color:var(--yellow)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:10px 0 0}
+.bar div{height:100%;background:var(--green);width:0}
+.ctrls{display:flex;gap:10px;justify-content:center;margin:14px 0 4px}
+.ctrls button{font-size:24px;min-width:64px;padding:12px}
+.ctrls button.big{min-width:96px;background:var(--green);color:#04121b;border-color:var(--green)}
+.bpmLive{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px}
+.bpmLive b{font-size:28px;min-width:90px}
+.list .it{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--line)}
+.list .it:last-child{border-bottom:0}
+.list .it.cur{background:#16384b;border-radius:10px}
+.list .it .n{width:26px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.tag{font-size:11px;padding:2px 7px;border-radius:6px;background:#0c2130;color:var(--muted);border:1px solid var(--line)}
+.tag.es{color:var(--blue)}.tag.ca{color:var(--green)}.tag.pa{color:var(--yellow)}
+dialog{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:16px;padding:16px;width:min(560px,94vw);max-height:90vh}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;display:none;z-index:50;max-width:90vw}
+.tapbtn{font-size:18px;padding:16px;width:100%}
+.libEx{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.libEx button{font-size:13px;padding:7px 10px}
+.libEx button.on{border-color:var(--blue);color:var(--blue)}
+.fullbtn{position:absolute;right:10px;top:10px;padding:6px 10px;font-size:13px}
+#stage{position:relative}
+body.full header,body.full nav,body.full .hideFull{display:none}
+body.full{padding-bottom:0}
+body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-direction:column;justify-content:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎵 Musicale NW <small>· Sile Walking</small></h1>
+  <span id="hdrState" class="chip">pronto</span>
+</header>
+
+<main>
+<!-- ===================== SERATA ===================== -->
+<section id="v-serata" class="view on">
+  <div class="card hideFull">
+    <div class="row">
+      <select id="selScaletta" class="grow"></select>
+      <button id="btnLibero">Modalità libera</button>
+    </div>
+    <div class="muted" id="scInfo" style="margin-top:6px"></div>
+  </div>
+
+  <div id="stage">
+    <button class="fullbtn" id="btnFull" title="Schermo intero">⛶</button>
+    <div class="chips" style="justify-content:center"><span class="chip" id="stTipo">—</span><span class="chip" id="stBlock"></span></div>
+    <div id="stTitle">Pronti?</div>
+    <div id="stDesc">Scegli una scaletta e premi ▶</div>
+    <div id="stCount">–</div>
+    <div id="dots"></div>
+    <div id="stInfo"><span class="chip" id="stBpm">— bpm</span><span class="chip" id="stProg"></span><span class="chip" id="stSrc"></span></div>
+    <div class="bar"><div id="stBar"></div></div>
+    <div id="stNext"></div>
+    <div class="ctrls">
+      <button id="btnPrev" title="Blocco precedente">⏮</button>
+      <button id="btnPlay" class="big" title="Avvia / pausa">▶</button>
+      <button id="btnNext" title="Blocco successivo">⏭</button>
+      <button id="btnStop" title="Ferma">⏹</button>
+    </div>
+    <div class="bpmLive">
+      <button id="bpmMinus">−</button><b id="bpmLive">— bpm</b><button id="bpmPlus">+</button>
+    </div>
+    <div id="liberoBox" style="display:none;margin-top:12px">
+      <div class="row presets" id="libPresets"></div>
+      <div class="grid2" style="margin-top:8px">
+        <div><label>Tempi</label><select id="libTempi"><option value="4">4 tempi</option><option value="8" selected>8 tempi</option></select></div>
+        <div><label>Musica</label><select id="libFonte"></select></div>
+      </div>
+      <label>Movimento (tocca per cambiare: il conteggio riparte da 1)</label>
+      <div class="libEx" id="libEx"></div>
+    </div>
+  </div>
+
+  <div class="card hideFull" style="margin-top:12px">
+    <div class="row"><b class="grow">Blocchi della scaletta</b><span class="muted">tocca per saltare</span></div>
+    <div class="list" id="runList"></div>
+  </div>
+</section>
+
+<!-- ===================== SCALETTE ===================== -->
+<section id="v-scalette" class="view">
+  <div class="row">
+    <button class="pri" id="btnNewSc">+ Nuova scaletta</button>
+    <button id="btnImport">Importa</button>
+    <input type="file" id="fileImport" accept=".json,application/json" hidden>
+  </div>
+  <div id="scList" style="margin-top:12px"></div>
+  <div id="scEditor" class="card" style="display:none">
+    <div class="row"><input id="scName" class="grow" placeholder="Nome della scaletta"><button id="scClose">Chiudi</button></div>
+    <div class="muted" id="scDur" style="margin:8px 0"></div>
+    <div class="list" id="scBlocks"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="pri" id="btnAddBlock">+ Aggiungi blocco</button>
+      <button id="btnExport">Esporta</button>
+      <button id="btnDup">Duplica</button>
+      <button class="danger" id="btnDelSc">Elimina</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ESERCIZI ===================== -->
+<section id="v-esercizi" class="view">
+  <div class="row"><button class="pri" id="btnNewEx">+ Nuovo esercizio</button></div>
+  <div id="exList"></div>
+</section>
+
+<!-- ===================== MUSICA ===================== -->
+<section id="v-musica" class="view">
+  <div class="card">
+    <b>Brani caricati</b>
+    <p class="muted">Carica i tuoi MP3: l'app ne riconosce i BPM e li adatta al ritmo scelto senza cambiare la tonalità. I brani restano salvati su questo telefono. Usa solo musica che hai il diritto di diffondere in pubblico.</p>
+    <button class="pri" id="btnUpload">+ Carica brani</button>
+    <input type="file" id="fileTracks" accept="audio/*" multiple hidden>
+    <div id="anaState" class="muted" style="margin-top:8px"></div>
+  </div>
+  <div id="trList"></div>
+  <div class="card">
+    <b>Basi ritmiche generate</b>
+    <p class="muted">Sempre a tempo, funzionano anche senza internet. Provale qui:</p>
+    <div class="row" id="baseTry"></div>
+  </div>
+</section>
+
+<!-- ===================== OPZIONI ===================== -->
+<section id="v-opzioni" class="view">
+  <div class="card">
+    <div class="row"><span class="grow">Voce che annuncia il prossimo esercizio</span><input type="checkbox" id="optVoice"></div>
+    <div class="row" style="margin-top:12px"><span class="grow">Campanella sul tempo "1"</span><input type="checkbox" id="optBell"></div>
+    <div class="row" style="margin-top:12px"><span class="grow">Bip di conto alla rovescia negli ultimi 4 tempi</span><input type="checkbox" id="optCount"></div>
+    <div class="row" style="margin-top:12px"><span class="grow">Tieni lo schermo acceso durante la serata</span><input type="checkbox" id="optWake"></div>
+  </div>
+  <div class="card">
+    <label>Volume generale</label><input type="range" id="volMaster" min="0" max="1" step="0.05">
+    <label>Volume base ritmica</label><input type="range" id="volBase" min="0" max="1" step="0.05">
+    <label>Volume brani</label><input type="range" id="volMusic" min="0" max="1" step="0.05">
+    <label>Volume segnali (campanella, bip)</label><input type="range" id="volFx" min="0" max="1" step="0.05">
+  </div>
+  <div class="card">
+    <b>Backup</b>
+    <p class="muted">Salva scalette ed esercizi personali in un file, per conservarli o passarli a un altro istruttore. I brani non sono inclusi.</p>
+    <div class="row"><button id="btnBackup">Scarica backup</button><button id="btnRestore">Ripristina backup</button><input type="file" id="fileRestore" accept=".json" hidden></div>
+  </div>
+  <p class="muted">Musicale NW v1.0 · Sile Walking – ASD Albaredo Insieme</p>
+</section>
+</main>
+
+<nav>
+  <button data-v="serata" class="on"><span>▶</span>Serata</button>
+  <button data-v="scalette"><span>☰</span>Scalette</button>
+  <button data-v="esercizi"><span>🤸</span>Esercizi</button>
+  <button data-v="musica"><span>♫</span>Musica</button>
+  <button data-v="opzioni"><span>⚙</span>Opzioni</button>
+</nav>
+
+<!-- dialog blocco -->
+<dialog id="dlgBlock">
+  <h2 style="margin-top:0">Blocco</h2>
+  <label>Tipo</label>
+  <select id="bTipo"><option value="esercizio">Esercizio a tempo</option><option value="camminata">Camminata a ritmo</option><option value="pausa">Pausa (senza musica)</option></select>
+  <div id="bEsBox">
+    <label>Esercizio</label><select id="bEx"></select>
+    <div class="grid2"><div><label>Tempi</label><select id="bTempi"><option value="4">4 tempi</option><option value="8">8 tempi</option></select></div>
+    <div><label>Ripetizioni (serie da 4 o 8)</label><input type="number" id="bMisure" min="1" max="64"></div></div>
+  </div>
+  <div id="bCaBox">
+    <label>Titolo</label><input id="bTitolo" placeholder="Camminata ritmica">
+    <div class="grid2"><div><label>Durata (minuti)</label><input type="number" id="bMinuti" min="0.5" max="60" step="0.5"></div>
+    <div><label>Conteggio</label><select id="bTempiCa"><option value="4">4 tempi</option><option value="8">8 tempi</option></select></div></div>
+  </div>
+  <div id="bPaBox">
+    <div class="grid2"><div><label>Titolo</label><input id="bTitoloPa" placeholder="Pausa"></div><div><label>Secondi</label><input type="number" id="bSecondi" min="5" max="600"></div></div>
+  </div>
+  <div id="bMusBox">
+    <label>BPM</label>
+    <div class="row"><input type="number" id="bBpm" min="60" max="180" style="max-width:110px"><div class="row presets grow" id="bPresets"></div></div>
+    <label>Musica</label><select id="bFonte"></select>
+  </div>
+  <div class="row" style="margin-top:16px;justify-content:flex-end">
+    <button class="danger" id="bDel">Elimina</button><span class="grow"></span>
+    <button id="bCancel">Annulla</button><button class="pri" id="bSave">Salva</button>
+  </div>
+</dialog>
+
+<!-- dialog esercizio -->
+<dialog id="dlgEx">
+  <h2 style="margin-top:0">Esercizio</h2>
+  <label>Nome</label><input id="eNome">
+  <div class="grid2"><div><label>Categoria</label><select id="eCat"></select></div><div><label>Tempi</label><select id="eTempi"><option value="4">4 tempi</option><option value="8">8 tempi</option></select></div></div>
+  <label>Come si esegue (comparirà sullo schermo)</label><textarea id="eDesc" rows="4"></textarea>
+  <div class="row" style="margin-top:16px;justify-content:flex-end">
+    <button class="danger" id="eDel">Elimina</button><span class="grow"></span>
+    <button id="eCancel">Annulla</button><button class="pri" id="eSave">Salva</button>
+  </div>
+</dialog>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   DATI DI BASE
+   ========================================================= */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const uid = () => Math.random().toString(36).slice(2, 10);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+
+const CATS = { risc: 'Riscaldamento', braccia: 'Braccia e bastoncini', gambe: 'Gambe', coord: 'Andature e coordinazione', defat: 'Defaticamento' };
+const PATTERNS = { leggero: 'Leggero', dance: 'Dance 4/4', tribale: 'Tribale', click: 'Solo click' };
+const PRESETS = [ { n: 'Riscaldamento', v: 105 }, { n: 'Ritmica', v: 120 }, { n: 'Sostenuto', v: 130 }, { n: 'Defaticamento', v: 95 } ];
+
+const BASE_EX = [
+  { id: 'marcia', nome: 'Marcia sul posto', cat: 'risc', tempi: 8, desc: 'Marcia sul posto aumentando piano piano l’ampiezza del passo; braccia che oscillano naturali.' },
+  { id: 'caviglie', nome: 'Rotazioni delle caviglie', cat: 'risc', tempi: 4, desc: 'Appoggio sui bastoncini, punta a terra: 4 cerchi con una caviglia, poi cambio piede.' },
+  { id: 'spalle', nome: 'Rotazioni delle spalle', cat: 'risc', tempi: 4, desc: 'Braccia rilassate lungo il corpo: 4 rotazioni in avanti, 4 indietro.' },
+  { id: 'braccia_circ', nome: 'Circonduzioni delle braccia', cat: 'risc', tempi: 8, desc: 'Braccia tese, cerchi ampi e lenti: 8 tempi avanti, 8 indietro.' },
+  { id: 'collo', nome: 'Rotazione lenta del collo', cat: 'risc', tempi: 8, desc: 'Movimento lento e controllato, un giro completo in 8 tempi, poi nell’altro verso.' },
+  { id: 'busto', nome: 'Torsioni del busto', cat: 'risc', tempi: 4, desc: 'Bastoncini uniti appoggiati dietro le spalle: ruota il busto a destra su 1-2, a sinistra su 3-4. Bacino fermo.' },
+  { id: 'ginocchia', nome: 'Ginocchia al petto', cat: 'risc', tempi: 4, desc: 'Appoggio sui bastoncini: porta un ginocchio verso il petto su 1-2, l’altro su 3-4.' },
+  { id: 'slanci', nome: 'Slanci della gamba', cat: 'risc', tempi: 4, desc: 'In appoggio sui bastoncini, busto dritto: slancio avanti su 1-2 e indietro su 3-4. Poi cambio gamba.' },
+  { id: 'spinta_bast', nome: 'Spinta sui bastoncini', cat: 'braccia', tempi: 4, desc: 'Puntali a metà piede, braccia distese: spingi verso il basso sul lacciolo su 1-2, rilascia su 3-4. Mano aperta.' },
+  { id: 'piegamenti_braccia', nome: 'Piegamenti delle braccia', cat: 'braccia', tempi: 4, desc: 'Mani sulle impugnature, busto inclinato in avanti: piega i gomiti su 1-2, distendi su 3-4.' },
+  { id: 'estensione', nome: 'Estensione del braccio indietro', cat: 'braccia', tempi: 8, desc: 'Braccio disteso che spinge indietro fino alla mano aperta; 4 tempi un braccio, 4 l’altro.' },
+  { id: 'sopra_testa', nome: 'Bastoncini sopra la testa', cat: 'braccia', tempi: 8, desc: 'Bastoncini uniti tra le mani: sali sopra la testa in 4 tempi, scendi in 4. Spalle basse.' },
+  { id: 'squat', nome: 'Piegamenti delle gambe', cat: 'gambe', tempi: 4, desc: 'Bastoncini davanti per appoggio: scendi su 1-2 come per sederti, risali su 3-4. Ginocchia sopra i piedi.' },
+  { id: 'affondi', nome: 'Affondi alternati', cat: 'gambe', tempi: 8, desc: 'Passo lungo in avanti e piega le ginocchia: 4 tempi con la destra avanti, 4 con la sinistra.' },
+  { id: 'affondi_torsione', nome: 'Affondi con torsione del busto', cat: 'gambe', tempi: 8, desc: 'In affondo ruota il busto verso la gamba avanti; 4 tempi per lato.' },
+  { id: 'punte', nome: 'Sollevamenti sulle punte', cat: 'gambe', tempi: 4, desc: 'Sali sulle punte su 1-2, scendi lento su 3-4. Appoggio leggero ai bastoncini.' },
+  { id: 'laterali', nome: 'Passi laterali', cat: 'gambe', tempi: 8, desc: '4 passi laterali a destra e 4 a sinistra, bastoncini che accompagnano.' },
+  { id: 'passo_spinta', nome: 'Passo e spinta a tempo', cat: 'coord', tempi: 4, desc: 'Camminata Nordic: il bastoncino tocca terra sul battito, braccio opposto alla gamba.' },
+  { id: 'monobraccio', nome: 'Andatura monobraccio', cat: 'coord', tempi: 8, desc: 'Un solo bastoncino: 8 tempi con un braccio, poi cambio. Attenzione al braccio che lavora.' },
+  { id: 'camminata_zero', nome: 'Camminata zero', cat: 'coord', tempi: 8, desc: 'Bastoncini lasciati strisciare, mani aperte: senti il bastoncino che si aggancia al terreno.' },
+  { id: 'saltellato', nome: 'Passo saltellato alternato', cat: 'coord', tempi: 8, desc: 'Passo classico con un piccolo salto, ginocchia morbide. Solo per chi se la sente.' },
+  { id: 'respiro', nome: 'Respirazione profonda', cat: 'defat', tempi: 8, desc: 'Inspira dal naso su 1-4 alzando le braccia, espira dalla bocca su 5-8 abbassandole.' },
+  { id: 'all_polpacci', nome: 'Allungamento dei polpacci', cat: 'defat', tempi: 8, desc: 'Mani sui bastoncini, una gamba indietro tallone a terra: tieni 8 tempi, poi cambio.' },
+  { id: 'all_spalle', nome: 'Allungamento spalle e dorso', cat: 'defat', tempi: 8, desc: 'Bastoncini davanti, busto in avanti a squadra, schiena lunga: tieni e respira.' },
+  { id: 'all_quadricipite', nome: 'Allungamento del quadricipite', cat: 'defat', tempi: 8, desc: 'Appoggio su un bastoncino, afferra la caviglia dietro: tieni 8 tempi, poi cambio.' }
+];
+
+function scalettaTipo() {
+  const B = (o) => Object.assign({ id: uid(), fonte: 'base:leggero' }, o);
+  return {
+    id: uid(), nome: 'Serata musicale tipo',
+    blocchi: [
+      B({ tipo: 'camminata', titolo: 'Camminata di riscaldamento', minuti: 3, tempi: 8, bpm: 100 }),
+      B({ tipo: 'esercizio', ex: 'caviglie', tempi: 4, misure: 4, bpm: 100 }),
+      B({ tipo: 'esercizio', ex: 'spalle', tempi: 4, misure: 4, bpm: 100 }),
+      B({ tipo: 'esercizio', ex: 'busto', tempi: 4, misure: 6, bpm: 105 }),
+      B({ tipo: 'esercizio', ex: 'ginocchia', tempi: 4, misure: 6, bpm: 105 }),
+      B({ tipo: 'camminata', titolo: 'Camminata ritmica', minuti: 10, tempi: 4, bpm: 115 }),
+      B({ tipo: 'esercizio', ex: 'spinta_bast', tempi: 4, misure: 8, bpm: 115 }),
+      B({ tipo: 'esercizio', ex: 'squat', tempi: 4, misure: 6, bpm: 115 }),
+      B({ tipo: 'camminata', titolo: 'Camminata ritmica', minuti: 10, tempi: 4, bpm: 120, fonte: 'base:dance' }),
+      B({ tipo: 'esercizio', ex: 'affondi', tempi: 8, misure: 4, bpm: 120, fonte: 'base:dance' }),
+      B({ tipo: 'esercizio', ex: 'piegamenti_braccia', tempi: 4, misure: 6, bpm: 120, fonte: 'base:dance' }),
+      B({ tipo: 'pausa', titolo: 'Acqua e fiato', secondi: 60 }),
+      B({ tipo: 'camminata', titolo: 'Camminata sostenuta', minuti: 12, tempi: 4, bpm: 128, fonte: 'base:tribale' }),
+      B({ tipo: 'esercizio', ex: 'monobraccio', tempi: 8, misure: 4, bpm: 125, fonte: 'base:tribale' }),
+      B({ tipo: 'camminata', titolo: 'Camminata ritmica', minuti: 8, tempi: 4, bpm: 120 }),
+      B({ tipo: 'camminata', titolo: 'Camminata di defaticamento', minuti: 3, tempi: 8, bpm: 100 }),
+      B({ tipo: 'esercizio', ex: 'respiro', tempi: 8, misure: 4, bpm: 90 }),
+      B({ tipo: 'esercizio', ex: 'all_polpacci', tempi: 8, misure: 4, bpm: 90 }),
+      B({ tipo: 'esercizio', ex: 'all_spalle', tempi: 8, misure: 4, bpm: 90 }),
+      B({ tipo: 'esercizio', ex: 'all_quadricipite', tempi: 8, misure: 4, bpm: 90 })
+    ]
+  };
+}
+
+/* =========================================================
+   SALVATAGGIO
+   ========================================================= */
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('nwm_' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('nwm_' + k, JSON.stringify(v)); } catch (e) { toast('Spazio pieno: impossibile salvare'); } }
+};
+const DB = {
+  db: null,
+  open() {
+    if (this.db) return Promise.resolve(this.db);
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('nwmusicale', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('tracks', { keyPath: 'id' });
+      r.onsuccess = () => { this.db = r.result; res(this.db); };
+      r.onerror = () => rej(r.error);
+    });
+  },
+  async tx(mode, fn) {
+    const db = await this.open();
+    return new Promise((res, rej) => {
+      const t = db.transaction('tracks', mode); const st = t.objectStore('tracks');
+      const q = fn(st); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error);
+    });
+  },
+  all() { return this.tx('readonly', st => st.getAll()); },
+  put(o) { return this.tx('readwrite', st => st.put(o)); },
+  del(id) { return this.tx('readwrite', st => st.delete(id)); }
+};
+
+const S = {
+  opts: Object.assign({ voice: false, bell: true, count: true, wake: true, vMaster: 0.9, vBase: 0.7, vMusic: 0.9, vFx: 0.7 }, LS.get('opts', {})),
+  customEx: LS.get('customEx', []),
+  scalette: LS.get('scalette', null),
+  tracks: []
+};
+if (!S.scalette || !S.scalette.length) { S.scalette = [scalettaTipo()]; LS.set('scalette', S.scalette); }
+const allEx = () => [...BASE_EX, ...S.customEx];
+const exById = id => allEx().find(e => e.id === id);
+const saveSc = () => LS.set('scalette', S.scalette);
+const saveOpts = () => LS.set('opts', S.opts);
+
+function armed(btn) { // conferma con doppio tocco (al posto di confirm())
+  if (btn && btn.dataset.armed) { delete btn.dataset.armed; btn.textContent = btn.dataset.txt; return true; }
+  if (btn) { btn.dataset.txt = btn.textContent; btn.dataset.armed = '1'; btn.textContent = 'Tocca ancora per confermare'; setTimeout(() => { if (btn.dataset.armed) { delete btn.dataset.armed; btn.textContent = btn.dataset.txt; } }, 3000); }
+  return false;
+}
+function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = 'none', ms); }
+
+/* =========================================================
+   AUDIO: sintetizzatore e basi ritmiche
+   ========================================================= */
+let AC = null, master, baseGain, musicGain, fxGain, noiseBuf;
+function audio() {
+  if (!AC) {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    master = AC.createGain(); master.connect(AC.destination);
+    baseGain = AC.createGain(); baseGain.connect(master);
+    musicGain = AC.createGain(); musicGain.connect(master);
+    fxGain = AC.createGain(); fxGain.connect(master);
+    noiseBuf = AC.createBuffer(1, AC.sampleRate, AC.sampleRate);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    applyVolumes();
+  }
+  if (AC.state === 'suspended') AC.resume();
+  return AC;
+}
+function applyVolumes() {
+  if (!AC) return;
+  master.gain.value = S.opts.vMaster; baseGain.gain.value = S.opts.vBase; musicGain.gain.value = S.opts.vMusic; fxGain.gain.value = S.opts.vFx;
+}
+function env(g, t, a, peak, d) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); }
+function tone(t, f, d, v, type = 'sine', dest = baseGain) { const o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.value = f; env(g, t, 0.002, v, d); o.connect(g).connect(dest); o.start(t); o.stop(t + d + 0.05); }
+function noise(t, d, v, type, freq, dest = baseGain) { const s = AC.createBufferSource(); s.buffer = noiseBuf; const f = AC.createBiquadFilter(); f.type = type; f.frequency.value = freq; const g = AC.createGain(); env(g, t, 0.002, v, d); s.connect(f).connect(g).connect(dest); s.start(t); s.stop(t + d + 0.05); }
+function kick(t, v = 1) { const o = AC.createOscillator(), g = AC.createGain(); o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.12); env(g, t, 0.003, 0.95 * v, 0.28); o.connect(g).connect(baseGain); o.start(t); o.stop(t + 0.35); }
+function tom(t, f, v = 1) { const o = AC.createOscillator(), g = AC.createGain(); o.frequency.setValueAtTime(f * 1.6, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.08); env(g, t, 0.003, 0.6 * v, 0.3); o.connect(g).connect(baseGain); o.start(t); o.stop(t + 0.35); }
+const snare = (t, v = 1) => { noise(t, 0.16, 0.45 * v, 'highpass', 1200); tone(t, 190, 0.08, 0.25 * v, 'triangle'); };
+const clap = (t, v = 1) => { for (let i = 0; i < 3; i++) noise(t + i * 0.012, 0.07, 0.35 * v, 'bandpass', 1500); };
+const hat = (t, v = 1) => noise(t, 0.04, 0.22 * v, 'highpass', 7000);
+const shaker = (t, v = 1) => noise(t, 0.06, 0.16 * v, 'bandpass', 5200);
+const rim = (t, v = 1) => tone(t, 1700, 0.03, 0.25 * v, 'triangle');
+const bell = (t) => { tone(t, 1320, 0.28, 0.35, 'sine', fxGain); tone(t, 1980, 0.16, 0.15, 'sine', fxGain); };
+const beep = (t, hi) => tone(t, hi ? 1320 : 880, 0.09, 0.35, 'square', fxGain);
+
+function playBeat(p, beat, t, spb) {
+  const b4 = ((beat % 4) + 4) % 4;
+  switch (p) {
+    case 'click': tone(t, b4 === 0 ? 1500 : 1000, 0.03, b4 === 0 ? 0.5 : 0.3, 'square'); break;
+    case 'dance': kick(t); if (b4 % 2 === 1) clap(t); hat(t + spb / 2); if (b4 === 3) hat(t + spb * 0.75, 0.6); break;
+    case 'tribale': tom(t, 85); if (b4 === 0) kick(t, 0.8); if (b4 % 2 === 1) tom(t + spb / 2, 150, 0.7); if (b4 === 3) tom(t + spb * 0.75, 210, 0.5); shaker(t + spb / 2, 0.6); break;
+    default: if (b4 % 2 === 0) kick(t, 0.7); else { rim(t); snare(t, 0.35); } shaker(t, 0.8); shaker(t + spb / 2, 0.55);
+  }
+}
+
+class BaseEngine {
+  constructor() { this.timer = null; this.running = false; this.hist = []; this.kind = 'base'; }
+  start(bpm, pattern, startBeat = 0) {
+    this.stop(); audio();
+    this.bpm = bpm; this.pattern = pattern; this.beat = startBeat; this.next = AC.currentTime + 0.1; this.hist = [];
+    this.running = true; this.sched(); this.timer = setInterval(() => this.sched(), 25);
+  }
+  sched() {
+    const ahead = AC.currentTime + 0.15;
+    while (this.next < ahead) {
+      const spb = 60 / this.bpm;
+      playBeat(this.pattern, this.beat, this.next, spb);
+      if (this.onSched) this.onSched(this.beat, this.next);
+      this.hist.push({ b: this.beat, t: this.next, spb }); if (this.hist.length > 24) this.hist.shift();
+      this.next += spb; this.beat++;
+    }
+  }
+  beatNow() {
+    const t = AC.currentTime;
+    for (let i = this.hist.length - 1; i >= 0; i--) { const h = this.hist[i]; if (h.t <= t) return h.b + Math.min(0.999, (t - h.t) / h.spb); }
+    const f = this.hist[0]; return f ? f.b - (f.t - t) / f.spb : 0;
+  }
+  setBpm(b) { this.bpm = b; }
+  stop() { clearInterval(this.timer); this.timer = null; this.running = false; }
+}
+
+class MusicEngine {
+  constructor() {
+    this.el = new Audio(); this.el.loop = true; this.el.preload = 'auto';
+    this.connected = false; this.track = null; this.loops = 0; this.lastT = 0; this.running = false; this.kind = 'music';
+  }
+  async start(track, bpm) {
+    audio();
+    if (!this.connected) { AC.createMediaElementSource(this.el).connect(musicGain); this.connected = true; }
+    if (!this.track || this.track.id !== track.id) {
+      if (this.url) URL.revokeObjectURL(this.url);
+      this.url = URL.createObjectURL(track.blob); this.track = track; this.loops = 0; this.lastT = 0;
+      await new Promise((res, rej) => { this.el.onloadedmetadata = res; this.el.onerror = () => rej(new Error('file audio non leggibile')); this.el.src = this.url; });
+      this.el.currentTime = Math.max(0, track.offset || 0); this.lastT = this.el.currentTime;
+    }
+    this.setBpm(bpm);
+    await this.el.play(); this.running = true;
+  }
+  setBpm(b) {
+    this.bpm = b; const r = Math.min(4, Math.max(0.25, b / (this.track.bpm || b)));
+    this.el.preservesPitch = true; this.el.mozPreservesPitch = true; this.el.webkitPreservesPitch = true;
+    this.el.playbackRate = r;
+  }
+  beatNow() {
+    const t = this.el.currentTime; if (t < this.lastT - 1) this.loops++; this.lastT = t;
+    const dur = isFinite(this.el.duration) ? this.el.duration : 0;
+    return ((t + this.loops * dur) - (this.track.offset || 0)) * this.track.bpm / 60;
+  }
+  pause() { this.el.pause(); }
+  resume() { return this.el.play(); }
+  stop() { this.el.pause(); this.running = false; }
+}
+const base = new BaseEngine();
+const music = new MusicEngine();
+
+/* =========================================================
+   RICONOSCIMENTO BPM
+   ========================================================= */
+async function analyzeTrack(file) {
+  audio();
+  const buf = await file.arrayBuffer();
+  const ab = await new Promise((res, rej) => AC.decodeAudioData(buf.slice(0), res, rej));
+  const sr = ab.sampleRate, n = ab.length, ch = ab.numberOfChannels;
+  const start = Math.floor(Math.min(ab.duration * 0.15, 30) * sr);
+  const len = Math.min(n - start, Math.floor(60 * sr));
+  const hop = Math.round(sr * 0.005), win = hop * 2;
+  const mono = new Float32Array(len);
+  for (let c = 0; c < ch; c++) { const d = ab.getChannelData(c); for (let i = 0; i < len; i++) mono[i] += d[start + i] / ch; }
+  // filtro passa-basso semplice per enfatizzare cassa e basso
+  let y = 0; const a = 0.06; for (let i = 0; i < len; i++) { y += a * (mono[i] - y); mono[i] = y; }
+  const frames = Math.floor((len - win) / hop); const e = new Float32Array(frames);
+  for (let f = 0; f < frames; f++) { let s = 0; const o = f * hop; for (let i = 0; i < win; i++) s += mono[o + i] * mono[o + i]; e[f] = Math.log(1e-9 + s); }
+  const on = new Float32Array(frames); for (let f = 1; f < frames; f++) on[f] = Math.max(0, e[f] - e[f - 1]);
+  let mean = 0; for (const v of on) mean += v; mean /= frames; for (let f = 0; f < frames; f++) on[f] = Math.max(0, on[f] - mean);
+  const hopS = hop / sr, minLag = Math.floor(60 / 170 / hopS), maxLag = Math.ceil(60 / 75 / hopS);
+  const ac = new Float32Array(maxLag + 2);
+  for (let L = minLag; L <= maxLag + 1; L++) { let s = 0; for (let f = 0; f + L < frames; f++) s += on[f] * on[f + L]; ac[L] = s / (frames - L); }
+  // punteggio con armoniche per evitare errori di metà/doppio tempo
+  let best = minLag, bestS = -1;
+  for (let L = minLag; L <= maxLag; L++) {
+    let s = ac[L]; const L2 = L * 2; if (L2 < ac.length) s += 0.5 * ac[L2];
+    const bpm = 60 / (L * hopS); const pref = Math.exp(-Math.pow(Math.log2(bpm / 120), 2) / 0.5); // preferenza verso 120
+    s *= (0.6 + 0.4 * pref);
+    if (s > bestS) { bestS = s; best = L; }
+  }
+  // interpolazione parabolica
+  let lag = best;
+  if (best > minLag && best < maxLag) { const y0 = ac[best - 1], y1 = ac[best], y2 = ac[best + 1]; const d = (y0 - y2) / (2 * (y0 - 2 * y1 + y2)); if (isFinite(d) && Math.abs(d) < 1) lag = best + d; }
+  let bpm = 60 / (lag * hopS);
+  while (bpm < 85) bpm *= 2; while (bpm > 170) bpm /= 2;
+  bpm = Math.round(bpm * 10) / 10;
+  // fase: dove cadono i battiti
+  const P = 60 / bpm / hopS; let bestP = 0, bestSum = -1;
+  for (let p = 0; p < P; p++) { let s = 0; for (let x = p; x < frames; x += P) s += on[Math.round(x)] || 0; if (s > bestSum) { bestSum = s; bestP = p; } }
+  const firstBeat = (start / sr) + bestP * hopS; const period = 60 / bpm;
+  const offset = ((firstBeat % period) + period) % period;
+  return { bpm, offset: Math.round(offset * 1000) / 1000, duration: ab.duration };
+}
+
+/* =========================================================
+   LETTORE DELLA SERATA
+   ========================================================= */
+const P = { sc: null, i: 0, blockStart: 0, total: 0, last: null, eng: null, running: false, paused: false, libero: false, pauseEnd: 0, pauseLeft: 0, announced: false, boundary: 0, exLib: null };
+const cur = () => P.sc && P.sc.blocchi[P.i];
+function blockBeats(bl) {
+  if (bl.tipo === 'esercizio') return Math.max(1, +bl.misure || 1) * (+bl.tempi || 4);
+  if (bl.tipo === 'camminata') return Math.max(1, Math.round((+bl.minuti || 1) * (+bl.bpm || 120)));
+  return 0;
+}
+function blockSec(bl) {
+  if (bl.tipo === 'pausa') return +bl.secondi || 0;
+  if (bl.tipo === 'camminata') return (+bl.minuti || 0) * 60;
+  return blockBeats(bl) * 60 / (+bl.bpm || 120);
+}
+function blockTitle(bl) {
+  if (bl.tipo === 'esercizio') { const e = exById(bl.ex); return e ? e.nome : 'Esercizio'; }
+  return bl.titolo || (bl.tipo === 'pausa' ? 'Pausa' : 'Camminata ritmica');
+}
+function fonteLabel(f) {
+  const [k, v] = String(f || 'base:leggero').split(':');
+  if (k === 'trk') { const t = S.tracks.find(x => x.id === v); return t ? '♫ ' + t.nome : '♫ brano mancante'; }
+  return 'Base ' + (PATTERNS[v] || v);
+}
+const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+
+function stopEngines() { base.stop(); music.stop(); }
+
+function schedFx(b, t) { // chiamata dalla base ritmica per segnali sincronizzati
+  if (!P.running || P.paused) return;
+  let bl = cur(); if (!bl) return; let k = b - P.blockStart, tot = P.total;
+  if (!P.libero && k >= tot) { bl = P.sc.blocchi[P.i + 1]; if (!bl || bl.tipo === 'pausa') return; k -= tot; tot = blockBeats(bl); }
+  if (k < 0) return;
+  fxForBeat(bl, k, tot, t);
+}
+function fxForBeat(bl, k, tot, t) {
+  const tempi = +bl.tempi || 4, cnt = k % tempi;
+  const remaining = tot - k;
+  if (S.opts.count && !P.libero && bl.tipo === 'esercizio' && remaining <= 4 && remaining >= 1) { beep(t, remaining === 1); return; }
+  if (S.opts.count && !P.libero && bl.tipo === 'camminata' && remaining <= 4 && remaining >= 1) { beep(t, remaining === 1); return; }
+  if (S.opts.bell && cnt === 0 && bl.tipo === 'esercizio') bell(t);
+}
+base.onSched = schedFx;
+
+async function startBlock(i, cont) {
+  const bl = P.sc.blocchi[i]; if (!bl) return finish();
+  P.i = i; P.total = blockBeats(bl); P.last = null; P.announced = false;
+  renderStage(); renderRunList();
+  if (bl.tipo === 'pausa') {
+    stopEngines(); P.eng = null; P.pauseEnd = performance.now() + (+bl.secondi || 30) * 1000;
+    speak(blockTitle(bl)); return;
+  }
+  let [kind, val] = String(bl.fonte || 'base:leggero').split(':');
+  let tr = null;
+  if (kind === 'trk') { tr = S.tracks.find(t => t.id === val); if (!tr) { toast('Brano non trovato: uso la base ritmica'); kind = 'base'; val = 'leggero'; } }
+  try {
+    if (kind === 'base') {
+      if (P.eng === base && base.running) { base.setBpm(+bl.bpm); base.pattern = val; P.blockStart = cont ? P.boundary : Math.ceil(base.beatNow()); }
+      else { music.stop(); P.eng = base; P.blockStart = 0; base.start(+bl.bpm, val, 0); }
+    } else {
+      if (P.eng === music && music.running && music.track && music.track.id === tr.id) { music.setBpm(+bl.bpm); if (music.el.paused) await music.resume(); P.blockStart = cont ? P.boundary : Math.ceil(music.beatNow()); }
+      else { base.stop(); P.eng = music; await music.start(tr, +bl.bpm); P.blockStart = Math.ceil(music.beatNow() - 0.1); }
+    }
+  } catch (e) { toast('Errore audio: ' + e.message); }
+  if (!cont || i === 0) speak(blockTitle(bl));
+}
+function advance(cont) {
+  if (P.libero) return;
+  if (P.i + 1 < P.sc.blocchi.length) startBlock(P.i + 1, cont); else finish();
+}
+function finish() {
+  stopEngines(); P.running = false; P.paused = false; P.eng = null;
+  $('#stTitle').textContent = 'Fine della serata 👏'; $('#stDesc').textContent = 'Bravi tutti!'; $('#stCount').textContent = '✓';
+  $('#stNext').textContent = ''; setPlayBtn(); releaseWake(); speak('Fine. Bravi tutti!'); $('#hdrState').textContent = 'finito';
+}
+function tick() {
+  requestAnimationFrame(tick);
+  if (!P.running || P.paused) return;
+  const bl = cur(); if (!bl) return;
+  if (bl.tipo === 'pausa') {
+    const rem = (P.pauseEnd - performance.now()) / 1000;
+    $('#stCount').textContent = fmt(rem); $('#stCount').className = rem <= 5 ? 'last' : '';
+    $('#stBar').style.width = (100 * (1 - rem / (+bl.secondi || 30))) + '%';
+    if (rem <= 0) advance(false);
+    return;
+  }
+  if (!P.eng) return;
+  const bf = P.eng.beatNow(), b = Math.floor(bf);
+  if (b < P.blockStart) { $('#stCount').textContent = '…'; return; }
+  if (b !== P.last) {
+    P.last = b; const k = b - P.blockStart;
+    if (!P.libero && k >= P.total) { P.boundary = P.blockStart + P.total; advance(true); return; }
+    onBeat(bl, k);
+  }
+  const prog = P.libero ? 0 : Math.min(1, (bf - P.blockStart) / P.total);
+  $('#stBar').style.width = (prog * 100) + '%';
+}
+function onBeat(bl, k) {
+  const tempi = +bl.tempi || 4, cnt = k % tempi + 1, mis = Math.floor(k / tempi) + 1;
+  const el = $('#stCount'); el.textContent = cnt;
+  const rem = P.total - k;
+  el.className = (!P.libero && rem <= 4) ? 'last' : (cnt === 1 ? 'one' : '');
+  el.classList.add('pop'); setTimeout(() => el.classList.remove('pop'), 90);
+  $$('#dots i').forEach((d, j) => d.classList.toggle('on', j < cnt));
+  if (P.eng === music) fxForBeat(bl, k, P.total, AC.currentTime + 0.01);
+  if (P.libero) { $('#stProg').textContent = 'serie ' + mis; return; }
+  if (bl.tipo === 'esercizio') $('#stProg').textContent = 'serie ' + Math.min(mis, bl.misure) + ' di ' + bl.misure;
+  else $('#stProg').textContent = 'mancano ' + fmt(rem * 60 / (+bl.bpm || 120));
+  const warnAt = Math.max(tempi, 8);
+  if (!P.announced && rem <= warnAt) {
+    P.announced = true; const nx = P.sc.blocchi[P.i + 1];
+    if (nx) { $('#stNext').className = 'alert'; speak('Prossimo: ' + blockTitle(nx)); }
+  }
+}
+
+function speak(txt) {
+  if (!S.opts.voice || !('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(txt); u.lang = 'it-IT'; u.rate = 1.05;
+    const v = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith('it')); if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+let wakeLock = null;
+async function getWake() { if (!S.opts.wake || !('wakeLock' in navigator)) return; try { wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
+function releaseWake() { try { wakeLock && wakeLock.release(); } catch (e) {} wakeLock = null; }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && P.running && !P.paused) getWake(); });
+
+/* ---------- comandi ---------- */
+async function play() {
+  audio();
+  if (P.running && P.paused) { // ripresa
+    P.paused = false; const bl = cur();
+    if (bl.tipo === 'pausa') P.pauseEnd = performance.now() + P.pauseLeft;
+    else if (P.eng === music) await music.resume();
+    else if (P.eng === base) { const done = Math.max(0, (P.last ?? P.blockStart) - P.blockStart + 1); P.blockStart = 0 - done; base.start(+bl.bpm, base.pattern, 0); P.last = null; }
+    setPlayBtn(); getWake(); $('#hdrState').textContent = 'in corso'; return;
+  }
+  if (P.running) return;
+  if (!P.libero) {
+    const sc = S.scalette.find(s => s.id === $('#selScaletta').value); if (!sc || !sc.blocchi.length) return toast('La scaletta è vuota');
+    P.sc = clone(sc);
+  }
+  P.running = true; P.paused = false; setPlayBtn(); getWake(); $('#hdrState').textContent = 'in corso';
+  await startBlock(P.libero ? 0 : 0, false);
+}
+function pause() {
+  if (!P.running || P.paused) return;
+  P.paused = true; const bl = cur();
+  if (bl && bl.tipo === 'pausa') P.pauseLeft = P.pauseEnd - performance.now();
+  if (P.eng === music) music.pause(); else if (P.eng === base) base.stop();
+  setPlayBtn(); $('#hdrState').textContent = 'in pausa';
+}
+function stopAll() {
+  stopEngines(); P.running = false; P.paused = false; P.eng = null; releaseWake();
+  if (P.libero) { P.libero = false; $('#liberoBox').style.display = 'none'; $('#btnLibero').textContent = 'Modalità libera'; }
+  setPlayBtn(); prepareStage(); $('#hdrState').textContent = 'pronto';
+}
+function jump(i) {
+  if (P.libero || !P.sc) return;
+  if (i < 0 || i >= P.sc.blocchi.length) return;
+  if (!P.running) { P.running = true; setPlayBtn(); getWake(); }
+  P.paused = false; startBlock(i, false);
+}
+function setPlayBtn() { $('#btnPlay').textContent = (P.running && !P.paused) ? '⏸' : '▶'; }
+function liveBpm(d) {
+  const bl = cur(); if (!bl || bl.tipo === 'pausa') return;
+  bl.bpm = Math.max(60, Math.min(180, (+bl.bpm || 120) + d));
+  if (P.eng) P.eng.setBpm(bl.bpm);
+  if (bl.tipo === 'camminata' && !P.libero) { // mantieni la durata in minuti
+    const done = (P.last ?? P.blockStart) - P.blockStart; const leftMin = Math.max(0, (bl.minuti * 60 - done * 60 / (bl.bpm - d))) / 60;
+    P.total = done + Math.round(leftMin * bl.bpm);
+  }
+  $('#bpmLive').textContent = bl.bpm + ' bpm'; $('#stBpm').textContent = bl.bpm + ' bpm';
+  if (P.libero) LS.set('libBpm', bl.bpm);
+}
+
+/* ---------- modalità libera ---------- */
+function toggleLibero() {
+  if (P.libero) { stopAll(); return; }
+  stopAll();
+  P.libero = true; $('#btnLibero').textContent = 'Esci da libera'; $('#liberoBox').style.display = 'block';
+  const bpm = LS.get('libBpm', 120);
+  P.sc = { nome: 'Libera', blocchi: [{ id: 'lib', tipo: 'camminata', titolo: 'Ritmo libero', minuti: 999, tempi: +$('#libTempi').value, bpm, fonte: $('#libFonte').value || 'base:leggero' }] };
+  P.exLib = null; renderLibero(); prepareStage(true);
+}
+function renderLibero() {
+  $('#libPresets').innerHTML = PRESETS.map(p => `<button data-b="${p.v}">${p.n}<br><b>${p.v}</b></button>`).join('');
+  $('#libFonte').innerHTML = fonteOptions((cur() && cur().fonte) || 'base:leggero');
+  const ex = allEx();
+  $('#libEx').innerHTML = `<button data-e="" class="${!P.exLib ? 'on' : ''}">Camminata</button>` + ex.map(e => `<button data-e="${e.id}" class="${P.exLib === e.id ? 'on' : ''}">${esc(e.nome)}</button>`).join('');
+}
+function libSetEx(id) {
+  P.exLib = id || null; const bl = cur(); const e = id ? exById(id) : null;
+  bl.titolo = e ? e.nome : 'Ritmo libero'; bl.tempi = e ? e.tempi : +$('#libTempi').value; $('#libTempi').value = bl.tempi;
+  bl.desc = e ? e.desc : '';
+  if (P.running && P.eng) P.blockStart = Math.ceil(P.eng.beatNow());
+  P.last = null; renderLibero(); renderStage(); speak(bl.titolo);
+}
+async function libSetFonte(f) {
+  const bl = cur(); bl.fonte = f;
+  if (P.running && !P.paused) { const keep = P.exLib; await startBlock(0, false); P.exLib = keep; }
+  else renderStage();
+}
+
+/* ---------- rendering serata ---------- */
+function prepareStage(lib) {
+  const sc = lib ? P.sc : S.scalette.find(s => s.id === $('#selScaletta').value);
+  if (!lib) P.sc = sc ? clone(sc) : null; P.i = 0;
+  $('#stTitle').textContent = lib ? 'Modalità libera' : 'Pronti?';
+  $('#stDesc').textContent = lib ? 'Scegli BPM, musica e movimento, poi premi ▶' : (sc ? sc.nome : 'Crea una scaletta');
+  $('#stCount').textContent = '–'; $('#stCount').className = ''; $('#stBar').style.width = '0';
+  $('#stNext').textContent = ''; $('#dots').innerHTML = '';
+  const b0 = P.sc && P.sc.blocchi[0];
+  $('#stBpm').textContent = b0 && b0.bpm ? b0.bpm + ' bpm' : '— bpm'; $('#bpmLive').textContent = $('#stBpm').textContent;
+  $('#stTipo').textContent = '—'; $('#stBlock').textContent = ''; $('#stProg').textContent = ''; $('#stSrc').textContent = b0 ? fonteLabel(b0.fonte) : '';
+  renderRunList(); renderScInfo();
+}
+function renderStage() {
+  const bl = cur(); if (!bl) return;
+  const e = bl.tipo === 'esercizio' ? exById(bl.ex) : null;
+  $('#stTipo').textContent = P.libero ? 'libera' : ({ esercizio: 'Esercizio', camminata: 'Camminata', pausa: 'Pausa' }[bl.tipo]);
+  $('#stTipo').className = 'chip';
+  $('#stBlock').textContent = P.libero ? '' : `blocco ${P.i + 1} di ${P.sc.blocchi.length}`;
+  $('#stTitle').textContent = blockTitle(bl);
+  $('#stDesc').textContent = e ? e.desc : (bl.desc || (bl.tipo === 'camminata' ? 'Bastoncino a terra sul battito, passo regolare.' : 'Respira, bevi un sorso d’acqua.'));
+  $('#stBpm').textContent = bl.tipo === 'pausa' ? 'pausa' : bl.bpm + ' bpm'; $('#bpmLive').textContent = bl.tipo === 'pausa' ? '—' : bl.bpm + ' bpm';
+  $('#stSrc').textContent = bl.tipo === 'pausa' ? 'silenzio' : fonteLabel(bl.fonte);
+  $('#stProg').textContent = bl.tipo === 'esercizio' ? `${bl.misure} serie da ${bl.tempi}` : (bl.tipo === 'camminata' && !P.libero ? fmt(bl.minuti * 60) : '');
+  const tempi = +bl.tempi || 4; $('#dots').innerHTML = bl.tipo === 'pausa' ? '' : '<i></i>'.repeat(tempi);
+  $('#stCount').textContent = bl.tipo === 'pausa' ? '' : '…'; $('#stCount').className = '';
+  const nx = !P.libero && P.sc.blocchi[P.i + 1];
+  $('#stNext').className = ''; $('#stNext').innerHTML = nx ? `Prossimo: <b>${esc(blockTitle(nx))}</b> · ${nx.tipo === 'pausa' ? nx.secondi + ' s' : nx.bpm + ' bpm'}` : (P.libero ? '' : 'Ultimo blocco');
+}
+function renderRunList() {
+  const sc = P.sc; const box = $('#runList');
+  if (!sc || P.libero) { box.innerHTML = '<div class="muted" style="padding:8px">—</div>'; return; }
+  box.innerHTML = sc.blocchi.map((b, i) => `<div class="it ${P.running && i === P.i ? 'cur' : ''}" data-i="${i}">
+    <span class="n">${i + 1}</span><span class="tag ${b.tipo.slice(0, 2)}">${b.tipo}</span>
+    <span class="grow">${esc(blockTitle(b))}</span><span class="muted">${b.tipo === 'pausa' ? b.secondi + 's' : b.bpm + ' bpm · ' + fmt(blockSec(b))}</span></div>`).join('');
+}
+function renderScInfo() {
+  const sc = S.scalette.find(s => s.id === $('#selScaletta').value);
+  $('#scInfo').textContent = sc ? `${sc.blocchi.length} blocchi · durata circa ${fmt(sc.blocchi.reduce((s, b) => s + blockSec(b), 0))}` : '';
+}
+function fillSelScaletta() {
+  const v = $('#selScaletta').value || LS.get('lastSc', '');
+  $('#selScaletta').innerHTML = S.scalette.map(s => `<option value="${s.id}">${esc(s.nome)}</option>`).join('');
+  if (S.scalette.some(s => s.id === v)) $('#selScaletta').value = v;
+}
+
+/* =========================================================
+   SCALETTE: elenco ed editor
+   ========================================================= */
+let editSc = null, editBlockIdx = -1;
+function renderScList() {
+  $('#scList').innerHTML = S.scalette.map(s => `<div class="card row" data-id="${s.id}">
+    <div class="grow"><b>${esc(s.nome)}</b><div class="muted">${s.blocchi.length} blocchi · circa ${fmt(s.blocchi.reduce((a, b) => a + blockSec(b), 0))}</div></div>
+    <button class="small" data-act="edit">Modifica</button><button class="small ok" data-act="use">Usa</button></div>`).join('');
+}
+function openScEditor(id) {
+  editSc = S.scalette.find(s => s.id === id); if (!editSc) return;
+  $('#scEditor').style.display = 'block'; $('#scList').style.display = 'none'; $('#scName').value = editSc.nome; renderScBlocks();
+  window.scrollTo(0, 0);
+}
+function closeScEditor() { editSc = null; $('#scEditor').style.display = 'none'; $('#scList').style.display = 'block'; renderScList(); fillSelScaletta(); prepareStage(); }
+function renderScBlocks() {
+  const bl = editSc.blocchi;
+  $('#scDur').textContent = `${bl.length} blocchi · durata circa ${fmt(bl.reduce((a, b) => a + blockSec(b), 0))}`;
+  $('#scBlocks').innerHTML = bl.map((b, i) => `<div class="it" data-i="${i}">
+    <span class="n">${i + 1}</span><span class="tag ${b.tipo.slice(0, 2)}">${b.tipo}</span>
+    <span class="grow">${esc(blockTitle(b))}<div class="muted">${b.tipo === 'pausa' ? b.secondi + ' s' : `${b.bpm} bpm · ${b.tipo === 'esercizio' ? b.misure + '×' + b.tempi + ' tempi' : b.minuti + ' min'} · ${esc(fonteLabel(b.fonte))}`}</div></span>
+    <button class="small" data-act="up">↑</button><button class="small" data-act="down">↓</button><button class="small" data-act="edit">✎</button></div>`).join('') || '<div class="muted" style="padding:8px">Nessun blocco: aggiungine uno.</div>';
+}
+function fonteOptions(sel) {
+  const o = Object.entries(PATTERNS).map(([k, v]) => `<option value="base:${k}" ${sel === 'base:' + k ? 'selected' : ''}>Base ritmica · ${v}</option>`);
+  S.tracks.forEach(t => o.push(`<option value="trk:${t.id}" ${sel === 'trk:' + t.id ? 'selected' : ''}>♫ ${esc(t.nome)} (${t.bpm} bpm)</option>`));
+  return o.join('');
+}
+function exOptions(sel) {
+  return Object.entries(CATS).map(([c, n]) => `<optgroup label="${n}">` + allEx().filter(e => e.cat === c).map(e => `<option value="${e.id}" ${sel === e.id ? 'selected' : ''}>${esc(e.nome)}</option>`).join('') + '</optgroup>').join('');
+}
+function openBlock(idx) {
+  editBlockIdx = idx;
+  const b = idx >= 0 ? editSc.blocchi[idx] : { tipo: 'esercizio', ex: 'spinta_bast', tempi: 4, misure: 4, bpm: 115, fonte: (editSc.blocchi.at(-1) || {}).fonte || 'base:leggero', minuti: 5, secondi: 60 };
+  $('#bTipo').value = b.tipo; $('#bEx').innerHTML = exOptions(b.ex); $('#bTempi').value = b.tempi || 4; $('#bMisure').value = b.misure || 4;
+  $('#bTitolo').value = b.tipo === 'camminata' ? (b.titolo || '') : ''; $('#bMinuti').value = b.minuti || 5; $('#bTempiCa').value = b.tempi || 4;
+  $('#bTitoloPa').value = b.tipo === 'pausa' ? (b.titolo || '') : ''; $('#bSecondi').value = b.secondi || 60;
+  $('#bBpm').value = b.bpm || 120; $('#bFonte').innerHTML = fonteOptions(b.fonte || 'base:leggero');
+  $('#bPresets').innerHTML = PRESETS.map(p => `<button type="button" data-b="${p.v}">${p.n} ${p.v}</button>`).join('');
+  $('#bDel').style.visibility = idx >= 0 ? 'visible' : 'hidden';
+  blockTipoUi(); $('#dlgBlock').showModal();
+}
+function blockTipoUi() { const t = $('#bTipo').value; $('#bEsBox').style.display = t === 'esercizio' ? '' : 'none'; $('#bCaBox').style.display = t === 'camminata' ? '' : 'none'; $('#bPaBox').style.display = t === 'pausa' ? '' : 'none'; $('#bMusBox').style.display = t === 'pausa' ? 'none' : ''; }
+function saveBlock() {
+  const t = $('#bTipo').value; const old = editBlockIdx >= 0 ? editSc.blocchi[editBlockIdx] : { id: uid() };
+  let b = { id: old.id, tipo: t };
+  if (t === 'esercizio') Object.assign(b, { ex: $('#bEx').value, tempi: +$('#bTempi').value, misure: Math.max(1, +$('#bMisure').value || 1) });
+  if (t === 'camminata') Object.assign(b, { titolo: $('#bTitolo').value.trim() || 'Camminata ritmica', minuti: Math.max(0.5, +$('#bMinuti').value || 1), tempi: +$('#bTempiCa').value });
+  if (t === 'pausa') Object.assign(b, { titolo: $('#bTitoloPa').value.trim() || 'Pausa', secondi: Math.max(5, +$('#bSecondi').value || 30) });
+  if (t !== 'pausa') Object.assign(b, { bpm: Math.max(60, Math.min(180, +$('#bBpm').value || 120)), fonte: $('#bFonte').value });
+  if (editBlockIdx >= 0) editSc.blocchi[editBlockIdx] = b; else editSc.blocchi.push(b);
+  saveSc(); renderScBlocks(); $('#dlgBlock').close();
+}
+function download(name, obj) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' }));
+  a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'scaletta'; }
+function importScaletta(obj) {
+  const list = Array.isArray(obj) ? obj : (obj.scalette || [obj]); let n = 0;
+  (obj.esercizi || []).forEach(e => { if (!exById(e.id)) { S.customEx.push(e); n++; } }); LS.set('customEx', S.customEx);
+  list.forEach(s => { if (s && Array.isArray(s.blocchi)) { s.id = uid(); s.blocchi.forEach(b => b.id = uid()); S.scalette.push(s); } });
+  saveSc(); renderScList(); fillSelScaletta(); toast('Importazione completata');
+}
+
+/* =========================================================
+   ESERCIZI
+   ========================================================= */
+let editEx = null;
+function renderExList() {
+  $('#exList').innerHTML = Object.entries(CATS).map(([c, n]) => `<h2>${n}</h2>` + allEx().filter(e => e.cat === c).map(e => {
+    const custom = S.customEx.some(x => x.id === e.id);
+    return `<div class="card"><div class="row"><b class="grow">${esc(e.nome)}</b><span class="chip">${e.tempi} tempi</span>${custom ? `<button class="small" data-ex="${e.id}">✎</button>` : ''}</div><div class="muted" style="margin-top:6px">${esc(e.desc)}</div></div>`;
+  }).join('')).join('');
+}
+function openEx(id) {
+  editEx = id ? S.customEx.find(e => e.id === id) : null;
+  $('#eCat').innerHTML = Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+  $('#eNome').value = editEx ? editEx.nome : ''; $('#eCat').value = editEx ? editEx.cat : 'braccia'; $('#eTempi').value = editEx ? editEx.tempi : 4; $('#eDesc').value = editEx ? editEx.desc : '';
+  $('#eDel').style.visibility = editEx ? 'visible' : 'hidden'; $('#dlgEx').showModal();
+}
+
+/* =========================================================
+   MUSICA
+   ========================================================= */
+let preview = { id: null, taps: [] };
+async function loadTracks() { try { S.tracks = (await DB.all()) || []; } catch (e) { S.tracks = []; } renderTracks(); }
+function renderTracks() {
+  $('#trList').innerHTML = S.tracks.map(t => `<div class="card" data-id="${t.id}">
+    <div class="row"><b class="grow">${esc(t.nome)}</b><span class="chip">${fmt(t.duration || 0)}</span></div>
+    <div class="grid2" style="margin-top:6px">
+      <div><label>BPM del brano</label><input type="number" step="0.1" data-f="bpm" value="${t.bpm}"></div>
+      <div><label>Inizio del primo battito (s)</label><input type="number" step="0.01" data-f="offset" value="${t.offset}"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="small" data-act="prev">${preview.id === t.id ? '⏹ Ferma' : '▶ Ascolta'}</button>
+      <button class="small" data-act="tap">👆 Batti il tempo</button>
+      <button class="small" data-act="one">Segna l'"1"</button>
+      <span class="grow"></span><button class="small danger" data-act="del">Elimina</button>
+    </div>
+    <div class="muted" data-tapinfo></div></div>`).join('') || '<p class="muted">Nessun brano caricato.</p>';
+}
+async function uploadTracks(files) {
+  for (const f of files) {
+    $('#anaState').textContent = `Analizzo "${f.name}"…`;
+    try {
+      const r = await analyzeTrack(f);
+      const t = { id: uid(), nome: f.name.replace(/\.[^.]+$/, ''), blob: f, bpm: r.bpm, offset: r.offset, duration: r.duration };
+      await DB.put(t); S.tracks.push(t);
+      $('#anaState').textContent = `"${t.nome}": ${t.bpm} bpm riconosciuti. Controllali con "Batti il tempo" se ti sembrano strani.`;
+    } catch (e) { $('#anaState').textContent = `"${f.name}": non riesco a leggerlo (${e.message || e}).`; }
+  }
+  renderTracks(); fillFonteSelects();
+}
+function fillFonteSelects() { if ($('#libFonte')) { const v = $('#libFonte').value; $('#libFonte').innerHTML = fonteOptions(v || 'base:leggero'); } }
+async function trackAction(id, act, card, btn) {
+  const t = S.tracks.find(x => x.id === id); if (!t) return;
+  if (act === 'del') { if (!armed(btn)) return; if (preview.id === id) stopPreview(); await DB.del(id); S.tracks = S.tracks.filter(x => x.id !== id); renderTracks(); fillFonteSelects(); return; }
+  if (act === 'prev') { if (preview.id === id) stopPreview(); else { stopAll(); preview.id = id; preview.taps = []; await music.start(t, t.bpm); music.el.playbackRate = 1; renderTracks(); } return; }
+  if (act === 'tap' || act === 'one') {
+    if (preview.id !== id) { stopAll(); preview.id = id; preview.taps = []; await music.start(t, t.bpm); music.el.playbackRate = 1; renderTracks(); toast('Batti il tempo sul pulsante seguendo la musica'); return; }
+    const now = music.el.currentTime; const info = $(`[data-id="${id}"] [data-tapinfo]`);
+    if (act === 'one') { const per = 60 / t.bpm; t.offset = Math.round((((now - 0.08) % per) + per) % per * 1000) / 1000; await DB.put(t); renderTracks(); toast('Primo tempo allineato'); return; }
+    preview.taps.push(now); if (preview.taps.length > 12) preview.taps.shift();
+    if (preview.taps.length >= 4) {
+      const d = []; for (let i = 1; i < preview.taps.length; i++) d.push(preview.taps[i] - preview.taps[i - 1]);
+      d.sort((a, b) => a - b); const med = d[Math.floor(d.length / 2)]; const bpm = Math.round(600 / med) / 10;
+      if (info) info.textContent = `Battuti ${preview.taps.length} colpi: ${bpm} bpm. Continua o premi di nuovo per aggiornare.`;
+      if (preview.taps.length >= 8) { t.bpm = bpm; await DB.put(t); const inp = card.querySelector('[data-f="bpm"]'); if (inp) inp.value = bpm; }
+    } else if (info) info.textContent = `Colpi: ${preview.taps.length}…`;
+  }
+}
+function stopPreview() { music.stop(); music.track = null; preview.id = null; preview.taps = []; renderTracks(); }
+
+/* =========================================================
+   EVENTI
+   ========================================================= */
+$$('nav button').forEach(b => b.onclick = () => {
+  $$('nav button').forEach(x => x.classList.toggle('on', x === b));
+  $$('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + b.dataset.v));
+  if (b.dataset.v === 'scalette') renderScList();
+  if (b.dataset.v === 'esercizi') renderExList();
+  if (b.dataset.v === 'musica') renderTracks();
+  if (b.dataset.v === 'serata' && !P.running) { fillSelScaletta(); prepareStage(P.libero); }
+});
+$('#btnPlay').onclick = () => (P.running && !P.paused) ? pause() : play();
+$('#btnStop').onclick = stopAll;
+$('#btnNext').onclick = () => jump(P.i + 1);
+$('#btnPrev').onclick = () => jump(P.i - 1);
+$('#bpmMinus').onclick = () => liveBpm(-2);
+$('#bpmPlus').onclick = () => liveBpm(2);
+$('#btnLibero').onclick = toggleLibero;
+$('#btnFull').onclick = () => { document.body.classList.toggle('full'); try { if (document.body.classList.contains('full')) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.(); } catch (e) {} };
+$('#selScaletta').onchange = () => { LS.set('lastSc', $('#selScaletta').value); if (!P.running) prepareStage(); };
+$('#runList').onclick = e => { const it = e.target.closest('.it'); if (it) jump(+it.dataset.i); };
+$('#libPresets').onclick = e => { const b = e.target.closest('button'); if (!b) return; const bl = cur(); if (!bl) return; liveBpm(+b.dataset.b - (+bl.bpm)); };
+$('#libTempi').onchange = () => { const bl = cur(); if (bl) { bl.tempi = +$('#libTempi').value; renderStage(); P.last = null; if (P.eng) P.blockStart = Math.ceil(P.eng.beatNow()); } };
+$('#libFonte').onchange = () => libSetFonte($('#libFonte').value);
+$('#libEx').onclick = e => { const b = e.target.closest('button'); if (b) libSetEx(b.dataset.e); };
+
+$('#btnNewSc').onclick = () => { const s = { id: uid(), nome: 'Nuova scaletta', blocchi: [] }; S.scalette.push(s); saveSc(); openScEditor(s.id); };
+$('#scList').onclick = e => { const b = e.target.closest('button'); const c = e.target.closest('[data-id]'); if (!b || !c) return;
+  if (b.dataset.act === 'edit') openScEditor(c.dataset.id);
+  if (b.dataset.act === 'use') { LS.set('lastSc', c.dataset.id); fillSelScaletta(); $('#selScaletta').value = c.dataset.id; $('nav button[data-v="serata"]').click(); } };
+$('#scName').oninput = () => { if (editSc) { editSc.nome = $('#scName').value; saveSc(); } };
+$('#scClose').onclick = closeScEditor;
+$('#scBlocks').onclick = e => { const b = e.target.closest('button'); const it = e.target.closest('.it'); if (!it) return; const i = +it.dataset.i;
+  if (!b || b.dataset.act === 'edit') return openBlock(i);
+  const bl = editSc.blocchi; if (b.dataset.act === 'up' && i > 0) [bl[i - 1], bl[i]] = [bl[i], bl[i - 1]]; if (b.dataset.act === 'down' && i < bl.length - 1) [bl[i + 1], bl[i]] = [bl[i], bl[i + 1]];
+  saveSc(); renderScBlocks(); };
+$('#btnAddBlock').onclick = () => openBlock(-1);
+$('#btnExport').onclick = () => { const used = [...new Set(editSc.blocchi.map(b => b.ex).filter(Boolean))]; download(slug(editSc.nome) + '.json', Object.assign(clone(editSc), { esercizi: S.customEx.filter(e => used.includes(e.id)) })); };
+$('#btnDup').onclick = () => { const c = clone(editSc); c.id = uid(); c.nome += ' (copia)'; c.blocchi.forEach(b => b.id = uid()); S.scalette.push(c); saveSc(); openScEditor(c.id); toast('Scaletta duplicata'); };
+$('#btnDelSc').onclick = () => { if (!armed($('#btnDelSc'))) return; S.scalette = S.scalette.filter(s => s !== editSc); if (!S.scalette.length) S.scalette = [scalettaTipo()]; saveSc(); closeScEditor(); };
+$('#btnImport').onclick = () => $('#fileImport').click();
+$('#fileImport').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { importScaletta(JSON.parse(await f.text())); } catch (er) { toast('File non valido'); } e.target.value = ''; };
+
+$('#bTipo').onchange = blockTipoUi;
+$('#bEx').onchange = () => { const ex = exById($('#bEx').value); if (ex) $('#bTempi').value = ex.tempi; };
+$('#bPresets').onclick = e => { const b = e.target.closest('button'); if (b) $('#bBpm').value = b.dataset.b; };
+$('#bSave').onclick = saveBlock;
+$('#bCancel').onclick = () => $('#dlgBlock').close();
+$('#bDel').onclick = () => { if (!armed($('#bDel'))) return; editSc.blocchi.splice(editBlockIdx, 1); saveSc(); renderScBlocks(); $('#dlgBlock').close(); };
+
+$('#btnNewEx').onclick = () => openEx(null);
+$('#exList').onclick = e => { const b = e.target.closest('[data-ex]'); if (b) openEx(b.dataset.ex); };
+$('#eSave').onclick = () => {
+  const nome = $('#eNome').value.trim(); if (!nome) return toast('Scrivi il nome');
+  const o = { nome, cat: $('#eCat').value, tempi: +$('#eTempi').value, desc: $('#eDesc').value.trim() };
+  if (editEx) Object.assign(editEx, o); else S.customEx.push(Object.assign({ id: 'c_' + uid() }, o));
+  LS.set('customEx', S.customEx); renderExList(); $('#dlgEx').close();
+};
+$('#eCancel').onclick = () => $('#dlgEx').close();
+$('#eDel').onclick = () => { if (!editEx || !armed($('#eDel'))) return; S.customEx = S.customEx.filter(e => e !== editEx); LS.set('customEx', S.customEx); renderExList(); $('#dlgEx').close(); };
+
+$('#btnUpload').onclick = () => $('#fileTracks').click();
+$('#fileTracks').onchange = e => { const fs = [...e.target.files]; e.target.value = ''; if (fs.length) uploadTracks(fs); };
+$('#trList').onclick = e => { const b = e.target.closest('button[data-act]'); const c = e.target.closest('[data-id]'); if (b && c) trackAction(c.dataset.id, b.dataset.act, c, b); };
+$('#trList').onchange = async e => { const i = e.target.closest('input[data-f]'); const c = e.target.closest('[data-id]'); if (!i || !c) return; const t = S.tracks.find(x => x.id === c.dataset.id); const v = parseFloat(i.value); if (!t || !isFinite(v)) return; t[i.dataset.f] = i.dataset.f === 'bpm' ? Math.max(40, Math.min(220, v)) : Math.max(0, v); await DB.put(t); fillFonteSelects(); toast('Salvato'); };
+$('#baseTry').innerHTML = Object.entries(PATTERNS).map(([k, v]) => `<button class="small" data-p="${k}">▶ ${v}</button>`).join('') + '<button class="small" data-p="">⏹</button>';
+$('#baseTry').onclick = e => { const b = e.target.closest('button'); if (!b) return; if (P.running) return toast('Ferma prima la serata'); if (preview.id) stopPreview(); if (!b.dataset.p) return base.stop(); base.start(120, b.dataset.p, 0); };
+
+const optMap = { optVoice: 'voice', optBell: 'bell', optCount: 'count', optWake: 'wake' };
+Object.entries(optMap).forEach(([id, k]) => { $('#' + id).checked = !!S.opts[k]; $('#' + id).onchange = e => { S.opts[k] = e.target.checked; saveOpts(); if (k === 'voice' && e.target.checked) { S.opts.voice = true; speak('Voce attiva'); } }; });
+const volMap = { volMaster: 'vMaster', volBase: 'vBase', volMusic: 'vMusic', volFx: 'vFx' };
+Object.entries(volMap).forEach(([id, k]) => { $('#' + id).value = S.opts[k]; $('#' + id).oninput = e => { S.opts[k] = +e.target.value; applyVolumes(); saveOpts(); }; });
+$('#btnBackup').onclick = () => download('musicale-nw-backup.json', { app: 'musicale-nw', versione: 1, scalette: S.scalette, esercizi: S.customEx });
+$('#btnRestore').onclick = () => $('#fileRestore').click();
+$('#fileRestore').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); importScaletta(o); } catch (er) { toast('File non valido'); } e.target.value = ''; };
+
+/* avvio */
+fillSelScaletta(); prepareStage(); loadTracks(); requestAnimationFrame(tick);
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('speechSynthesis' in window) speechSynthesis.getVoices();
+window.__NWM = { P, S, base, music, analyzeTrack, play, pause, stopAll, jump };
+</script>
+</body>
+</html>
