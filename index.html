@@ -63,6 +63,24 @@ label{font-size:13px;color:var(--muted);display:block;margin:10px 0 4px}
 #dots i{width:16px;height:16px;border-radius:50%;background:var(--line)}
 #dots i.on{background:var(--brand-sky)}
 #dots i.on:first-child{background:var(--brand-yellow)}
+#dots.d16{gap:5px}
+#dots.d16 i{width:12px;height:12px}
+#dots i.seg{opacity:.28}
+#dots i.seg.on{opacity:1}
+#dots i.seg.here{outline:2px solid var(--text);outline-offset:2px}
+#stAnd{display:none;margin:2px 0 8px}
+#stAnd.on{display:block}
+#stAndCur{font-size:clamp(30px,9vw,64px);font-weight:900;line-height:1.05;color:var(--brand-sky)}
+#stAndNext{font-size:17px;color:var(--muted);margin-top:4px}
+#stAndNext b{color:var(--text)}
+.a-alt{background:#68d6fe!important}.a-p2{background:#efe158!important}.a-p3{background:#ff9f43!important}
+.a-p4{background:#ff6a5c!important}.a-mdx{background:#b388ff!important}.a-msx{background:#8c9eff!important}.a-ambio{background:#4cd964!important}
+.segchip{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;color:var(--on-accent)!important}
+.segRow{display:grid;grid-template-columns:1fr 90px 44px;gap:8px;align-items:center;margin-top:8px}
+.segRow button{padding:8px}
+#cCheck{margin-top:10px;font-size:14px}
+#cCheck.ok{color:var(--brand-sky)}#cCheck.ko{color:var(--red)}
+.tag.co{color:#4cd964}
 #stInfo{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
 #stNext{margin-top:12px;font-size:16px;color:var(--muted)}
 #stNext b{color:var(--text)}
@@ -121,6 +139,7 @@ body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-dir
     <div id="stTitle">Pronti?</div>
     <div id="stDesc">Scegli una scaletta e premi ▶</div>
     <div id="stCount"><img class="stLogo" src="logo.png" alt="Sile Walking"></div>
+    <div id="stAnd"><div id="stAndCur"></div><div id="stAndNext"></div></div>
     <div id="dots"></div>
     <div id="stInfo"><span class="chip" id="stBpm">— bpm</span><span class="chip" id="stProg"></span><span class="chip" id="stSrc"></span></div>
     <div class="bar"><div id="stBar"></div></div>
@@ -174,6 +193,11 @@ body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-dir
 
 <!-- ===================== ESERCIZI ===================== -->
 <section id="v-esercizi" class="view">
+  <h2 style="margin-top:4px">Combinazioni di andature</h2>
+  <p class="muted" style="margin-top:0">Frasi da 8 o 16 tempi, un passo per battito. Durante la serata lo schermo mostra l'andatura in corso e quella che arriva.</p>
+  <div class="row"><button class="pri" id="btnNewCombo">+ Nuova combinazione</button></div>
+  <div id="comboList" style="margin-top:12px"></div>
+  <h2>Esercizi</h2>
   <div class="row"><button class="pri" id="btnNewEx">+ Nuovo esercizio</button></div>
   <div id="exList"></div>
 </section>
@@ -201,6 +225,7 @@ body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-dir
     <div class="row"><span class="grow">Voce che annuncia il prossimo esercizio</span><input type="checkbox" id="optVoice"></div>
     <div class="row" style="margin-top:12px"><span class="grow">Campanella sul tempo "1"</span><input type="checkbox" id="optBell"></div>
     <div class="row" style="margin-top:12px"><span class="grow">Bip di conto alla rovescia negli ultimi 4 tempi</span><input type="checkbox" id="optCount"></div>
+    <div class="row" style="margin-top:12px"><span class="grow">Segnale sul cambio di andatura (combinazioni)</span><input type="checkbox" id="optSwap"></div>
     <div class="row" style="margin-top:12px"><span class="grow">Tieni lo schermo acceso durante la serata</span><input type="checkbox" id="optWake"></div>
   </div>
   <div class="card">
@@ -214,7 +239,7 @@ body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-dir
     <p class="muted">Salva scalette ed esercizi personali in un file, per conservarli o passarli a un altro istruttore. I brani non sono inclusi.</p>
     <div class="row"><button id="btnBackup">Scarica backup</button><button id="btnRestore">Ripristina backup</button><input type="file" id="fileRestore" accept=".json" hidden></div>
   </div>
-  <div class="credits"><img src="logo.png" alt=""><p class="muted" style="margin:0">Musicale NW v1.2 · Sile Walking – ASD Albaredo Insieme</p></div>
+  <div class="credits"><img src="logo.png" alt=""><p class="muted" style="margin:0">Musicale NW v1.3 · Sile Walking – ASD Albaredo Insieme</p></div>
 </section>
 </main>
 
@@ -230,7 +255,12 @@ body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-dir
 <dialog id="dlgBlock">
   <h2 style="margin-top:0">Blocco</h2>
   <label>Tipo</label>
-  <select id="bTipo"><option value="esercizio">Esercizio a tempo</option><option value="camminata">Camminata a ritmo</option><option value="pausa">Pausa (senza musica)</option></select>
+  <select id="bTipo"><option value="esercizio">Esercizio a tempo</option><option value="combinazione">Combinazione di andature</option><option value="camminata">Camminata a ritmo</option><option value="pausa">Pausa (senza musica)</option></select>
+  <div id="bCoBox">
+    <label>Combinazione</label><select id="bCombo"></select>
+    <label>Ripetizioni della frase</label><input type="number" id="bRip" min="1" max="64">
+    <div class="muted" id="bCoInfo" style="margin-top:6px"></div>
+  </div>
   <div id="bEsBox">
     <label>Esercizio</label><select id="bEx"></select>
     <div class="grid2"><div><label>Tempi</label><select id="bTempi"><option value="4">4 tempi</option><option value="8">8 tempi</option></select></div>
@@ -264,6 +294,21 @@ body.full #stage{min-height:100vh;border-radius:0;border:0;display:flex;flex-dir
   <div class="row" style="margin-top:16px;justify-content:flex-end">
     <button class="danger" id="eDel">Elimina</button><span class="grow"></span>
     <button id="eCancel">Annulla</button><button class="pri" id="eSave">Salva</button>
+  </div>
+</dialog>
+
+<!-- dialog combinazione -->
+<dialog id="dlgCombo">
+  <h2 style="margin-top:0">Combinazione di andature</h2>
+  <label>Nome</label><input id="cNome" placeholder="Es. Alternato → P4">
+  <label>Lunghezza della frase</label><select id="cFrase"><option value="8">8 tempi</option><option value="16">16 tempi</option></select>
+  <label>Andature in ordine (passi = battiti)</label>
+  <div id="cSegs"></div>
+  <button id="cAddSeg" style="margin-top:10px">+ Aggiungi andatura</button>
+  <div id="cCheck"></div>
+  <div class="row" style="margin-top:16px;justify-content:flex-end">
+    <button class="danger" id="cDel">Elimina</button><span class="grow"></span>
+    <button id="cCancel">Annulla</button><button class="pri" id="cSave">Salva</button>
   </div>
 </dialog>
 
@@ -311,6 +356,50 @@ const BASE_EX = [
   { id: 'all_spalle', nome: 'Allungamento spalle e dorso', cat: 'defat', tempi: 8, desc: 'Bastoncini davanti, busto in avanti a squadra, schiena lunga: tieni e respira.' },
   { id: 'all_quadricipite', nome: 'Allungamento del quadricipite', cat: 'defat', tempi: 8, desc: 'Appoggio su un bastoncino, afferra la caviglia dietro: tieni 8 tempi, poi cambio.' }
 ];
+
+/* andature per le combinazioni: cyc = passi di un ciclo completo */
+const ANDATURE = {
+  alt:   { n: 'Alternato', s: 'Alt', v: 'alternato', cyc: 1 },
+  p2:    { n: 'Parallelo a 2', s: 'P2', v: 'parallelo a due', cyc: 2 },
+  p3:    { n: 'Parallelo a 3', s: 'P3', v: 'parallelo a tre', cyc: 3 },
+  p4:    { n: 'Parallelo a 4', s: 'P4', v: 'parallelo a quattro', cyc: 4 },
+  mdx:   { n: 'Monobraccio destro', s: 'Mono dx', v: 'mono destro', cyc: 1 },
+  msx:   { n: 'Monobraccio sinistro', s: 'Mono sx', v: 'mono sinistro', cyc: 1 },
+  ambio: { n: 'Ambio', s: 'Ambio', v: 'ambio', cyc: 1 }
+};
+const ACOL = { alt: '#68d6fe', p2: '#efe158', p3: '#ff9f43', p4: '#ff6a5c', mdx: '#b388ff', msx: '#8c9eff', ambio: '#4cd964' };
+const BASE_COMBO = [
+  { id: 'k_alt_p3', nome: 'Alternato → P3', frase: 8, seg: [{ a: 'alt', n: 2 }, { a: 'p3', n: 6 }] },
+  { id: 'k_alt_p4', nome: 'Alternato → P4', frase: 8, seg: [{ a: 'alt', n: 4 }, { a: 'p4', n: 4 }] },
+  { id: 'k_p2_p4_p2', nome: 'P2 + P4 + P2', frase: 8, seg: [{ a: 'p2', n: 2 }, { a: 'p4', n: 4 }, { a: 'p2', n: 2 }] },
+  { id: 'k_p3_alt_p2', nome: 'P3 + Alternato + P2', frase: 8, seg: [{ a: 'p3', n: 3 }, { a: 'alt', n: 3 }, { a: 'p2', n: 2 }] },
+  { id: 'k_alt_p2', nome: 'Alternato → P2', frase: 8, seg: [{ a: 'alt', n: 4 }, { a: 'p2', n: 4 }] },
+  { id: 'k_mono', nome: 'Monobraccio con cambio', frase: 8, seg: [{ a: 'mdx', n: 4 }, { a: 'msx', n: 4 }] },
+  { id: 'k_alt_ambio', nome: 'Alternato ↔ ambio', frase: 8, seg: [{ a: 'alt', n: 4 }, { a: 'ambio', n: 4 }] }
+];
+function comboCheck(c) { // restituisce un messaggio d'errore oppure ''
+  if (!c.seg.length) return 'Aggiungi almeno un’andatura';
+  for (const s of c.seg) {
+    const a = ANDATURE[s.a]; if (!a) return 'Andatura sconosciuta';
+    if (!(s.n >= 1)) return a.n + ': indica i passi';
+    if (s.n % a.cyc) return `${a.n}: i passi devono essere multipli di ${a.cyc} (ciclo completo)`;
+  }
+  const tot = c.seg.reduce((x, s) => x + s.n, 0);
+  if (tot !== c.frase) return `Totale ${tot} passi su ${c.frase}: ${tot < c.frase ? 'ne mancano ' + (c.frase - tot) : 'sono ' + (tot - c.frase) + ' di troppo'}`;
+  return '';
+}
+const comboSeq = (c, long) => c.seg.map(s => (long ? ANDATURE[s.a].n : ANDATURE[s.a].s) + ' ' + s.n).join(long ? ' → ' : ' + ');
+function segAt(c, pos) { // segmento che contiene il passo pos (0-based nella frase)
+  let acc = 0;
+  for (let i = 0; i < c.seg.length; i++) { if (pos < acc + c.seg[i].n) return { i, start: acc, s: c.seg[i] }; acc += c.seg[i].n; }
+  return { i: c.seg.length - 1, start: acc - c.seg.at(-1).n, s: c.seg.at(-1) };
+}
+
+function isSegChange(c, pos) { // al passo pos inizia un'andatura diversa dalla precedente?
+  const here = segAt(c, pos); if (here.start !== pos) return false;
+  const prev = pos === 0 ? c.seg.at(-1) : segAt(c, pos - 1).s;
+  return prev.a !== here.s.a;
+}
 
 function scalettaTipo() {
   const B = (o) => Object.assign({ id: uid(), fonte: 'base:leggero' }, o);
@@ -372,8 +461,9 @@ const DB = {
 };
 
 const S = {
-  opts: Object.assign({ voice: false, bell: true, count: true, wake: true, vMaster: 0.9, vBase: 0.7, vMusic: 0.9, vFx: 0.7 }, LS.get('opts', {})),
+  opts: Object.assign({ voice: false, bell: true, count: true, swap: true, wake: true, vMaster: 0.9, vBase: 0.7, vMusic: 0.9, vFx: 0.7 }, LS.get('opts', {})),
   customEx: LS.get('customEx', []),
+  customCombo: LS.get('customCombo', []),
   scalette: LS.get('scalette', null),
   tracks: []
 };
@@ -381,6 +471,10 @@ if (!S.scalette || !S.scalette.length) { S.scalette = [scalettaTipo()]; LS.set('
 const allEx = () => [...BASE_EX, ...S.customEx];
 const EX_ALIAS = { spinta_bast: 'braccia_alt', piegamenti_braccia: 'aperture', sopra_testa: 'apertura_discesa', saltellato: 'passo_spinta' };
 const exById = id => allEx().find(e => e.id === id) || allEx().find(e => e.id === EX_ALIAS[id]);
+const allCombo = () => [...BASE_COMBO, ...S.customCombo];
+const comboById = id => allCombo().find(c => c.id === id);
+const saveCombo = () => LS.set('customCombo', S.customCombo);
+const isTimed = bl => bl.tipo === 'esercizio' || bl.tipo === 'combinazione';
 const saveSc = () => LS.set('scalette', S.scalette);
 const saveOpts = () => LS.set('opts', S.opts);
 
@@ -425,6 +519,7 @@ const shaker = (t, v = 1) => noise(t, 0.06, 0.16 * v, 'bandpass', 5200);
 const rim = (t, v = 1) => tone(t, 1700, 0.03, 0.25 * v, 'triangle');
 const bell = (t) => { tone(t, 1320, 0.28, 0.35, 'sine', fxGain); tone(t, 1980, 0.16, 0.15, 'sine', fxGain); };
 const beep = (t, hi) => tone(t, hi ? 1320 : 880, 0.09, 0.35, 'square', fxGain);
+const swapFx = (t) => { tone(t, 660, 0.07, 0.35, 'triangle', fxGain); tone(t + 0.08, 990, 0.1, 0.35, 'triangle', fxGain); };
 
 function playBeat(p, beat, t, spb) {
   const b4 = ((beat % 4) + 4) % 4;
@@ -547,8 +642,13 @@ const P = { sc: null, i: 0, blockStart: 0, total: 0, last: null, eng: null, runn
 const cur = () => P.sc && P.sc.blocchi[P.i];
 function blockBeats(bl) {
   if (bl.tipo === 'esercizio') return Math.max(1, +bl.misure || 1) * (+bl.tempi || 4);
+  if (bl.tipo === 'combinazione') return Math.max(1, +bl.misure || 1) * blockTempi(bl);
   if (bl.tipo === 'camminata') return Math.max(1, Math.round((+bl.minuti || 1) * (+bl.bpm || 120)));
   return 0;
+}
+function blockTempi(bl) {
+  if (bl.tipo === 'combinazione') { const c = comboById(bl.combo); return c ? c.frase : (+bl.tempi || 8); }
+  return +bl.tempi || 4;
 }
 function blockSec(bl) {
   if (bl.tipo === 'pausa') return +bl.secondi || 0;
@@ -557,6 +657,7 @@ function blockSec(bl) {
 }
 function blockTitle(bl) {
   if (bl.tipo === 'esercizio') { const e = exById(bl.ex); return e ? e.nome : 'Esercizio'; }
+  if (bl.tipo === 'combinazione') { const c = comboById(bl.combo); return c ? c.nome : 'Combinazione'; }
   return bl.titolo || (bl.tipo === 'pausa' ? 'Pausa' : 'Camminata ritmica');
 }
 function fonteLabel(f) {
@@ -576,11 +677,11 @@ function schedFx(b, t) { // chiamata dalla base ritmica per segnali sincronizzat
   fxForBeat(bl, k, tot, t);
 }
 function fxForBeat(bl, k, tot, t) {
-  const tempi = +bl.tempi || 4, cnt = k % tempi;
+  const tempi = blockTempi(bl), cnt = k % tempi;
   const remaining = tot - k;
-  if (S.opts.count && !P.libero && bl.tipo === 'esercizio' && remaining <= 4 && remaining >= 1) { beep(t, remaining === 1); return; }
-  if (S.opts.count && !P.libero && bl.tipo === 'camminata' && remaining <= 4 && remaining >= 1) { beep(t, remaining === 1); return; }
-  if (S.opts.bell && cnt === 0 && bl.tipo === 'esercizio') bell(t);
+  if (S.opts.count && !P.libero && (isTimed(bl) || bl.tipo === 'camminata') && remaining <= 4 && remaining >= 1) { beep(t, remaining === 1); return; }
+  if (bl.tipo === 'combinazione' && S.opts.swap && k > 0) { const c = comboById(bl.combo); if (c && isSegChange(c, cnt)) { swapFx(t); return; } }
+  if (S.opts.bell && cnt === 0 && isTimed(bl)) bell(t);
 }
 base.onSched = schedFx;
 
@@ -604,7 +705,8 @@ async function startBlock(i, cont) {
       else { base.stop(); P.eng = music; await music.start(tr, +bl.bpm); P.blockStart = Math.ceil(music.beatNow() - 0.1); }
     }
   } catch (e) { toast('Errore audio: ' + e.message); }
-  if (!cont || i === 0) speak(blockTitle(bl));
+  if (bl.tipo === 'combinazione') { const c = comboById(bl.combo); speak(blockTitle(bl) + (c ? '. Si parte in ' + ANDATURE[c.seg[0].a].v : '')); }
+  else if (!cont || i === 0) speak(blockTitle(bl));
 }
 function advance(cont) {
   if (P.libero) return;
@@ -638,21 +740,44 @@ function tick() {
   $('#stBar').style.width = (prog * 100) + '%';
 }
 function onBeat(bl, k) {
-  const tempi = +bl.tempi || 4, cnt = k % tempi + 1, mis = Math.floor(k / tempi) + 1;
+  const tempi = blockTempi(bl), cnt = k % tempi + 1, mis = Math.floor(k / tempi) + 1;
   const el = $('#stCount'); el.textContent = cnt;
   const rem = P.total - k;
   el.className = (!P.libero && rem <= 4) ? 'last' : (cnt === 1 ? 'one' : '');
   el.classList.add('pop'); setTimeout(() => el.classList.remove('pop'), 90);
-  $$('#dots i').forEach((d, j) => d.classList.toggle('on', j < cnt));
+  $$('#dots i').forEach((d, j) => { d.classList.toggle('on', j < cnt); d.classList.toggle('here', j === cnt - 1); });
   if (P.eng === music) fxForBeat(bl, k, P.total, AC.currentTime + 0.01);
   if (P.libero) { $('#stProg').textContent = 'serie ' + mis; return; }
+  let segAhead = false;
+  if (bl.tipo === 'combinazione') segAhead = comboBeat(bl, k, rem);
   if (bl.tipo === 'esercizio') $('#stProg').textContent = 'serie ' + Math.min(mis, bl.misure) + ' di ' + bl.misure;
+  else if (bl.tipo === 'combinazione') $('#stProg').textContent = 'frase ' + Math.min(mis, bl.misure) + ' di ' + bl.misure;
   else $('#stProg').textContent = 'mancano ' + fmt(rem * 60 / (+bl.bpm || 120));
   const warnAt = Math.max(tempi, 8);
-  if (!P.announced && rem <= warnAt) {
+  if (!P.announced && rem <= warnAt && !segAhead) {
     P.announced = true; const nx = P.sc.blocchi[P.i + 1];
     if (nx) { $('#stNext').className = 'alert'; speak('Prossimo: ' + blockTitle(nx)); }
   }
+}
+
+/* combinazioni: andatura in corso, prossima, annuncio un tempo prima del cambio.
+   Restituisce true se nel blocco c'è ancora un cambio di andatura da annunciare
+   (così l'annuncio del blocco successivo non copre quello del cambio). */
+function comboBeat(bl, k, rem) {
+  const c = comboById(bl.combo); if (!c) return false;
+  const f = c.frase, pos = k % f, here = segAt(c, pos);
+  // prossima andatura diversa (anche nella frase successiva, se il blocco continua)
+  let nextTxt = '', nextIn = 0;
+  for (let j = 1; j < f + 1 && k + j < P.total; j++) {
+    const p = (pos + j) % f;
+    if (isSegChange(c, p)) { nextTxt = ANDATURE[segAt(c, p).s.a].n; nextIn = j; break; }
+  }
+  const a = ANDATURE[here.s.a];
+  $('#stAndCur').textContent = a.n; $('#stAndCur').style.color = ACOL[here.s.a];
+  const passo = pos - here.start + 1;
+  $('#stAndNext').innerHTML = `passo ${passo} di ${here.s.n}` + (nextTxt ? ` · poi <b>${esc(nextTxt)}</b>${nextIn <= 2 ? ' ⟵' : ''}` : '');
+  if (nextIn === 1) speak(ANDATURE[segAt(c, (pos + 1) % f).s.a].v);
+  return !!nextTxt && rem > 1;
 }
 
 function speak(txt) {
@@ -753,7 +878,7 @@ function prepareStage(lib) {
   $('#stTitle').textContent = lib ? 'Modalità libera' : 'Pronti?';
   $('#stDesc').textContent = lib ? 'Scegli BPM, musica e movimento, poi premi ▶' : (sc ? sc.nome : 'Crea una scaletta');
   $('#stCount').innerHTML = '<img class="stLogo" src="logo.png" alt="Sile Walking">'; $('#stCount').className = ''; $('#stBar').style.width = '0';
-  $('#stNext').textContent = ''; $('#dots').innerHTML = '';
+  $('#stNext').textContent = ''; $('#dots').innerHTML = ''; $('#dots').className = ''; $('#stAnd').className = '';
   const b0 = P.sc && P.sc.blocchi[0];
   $('#stBpm').textContent = b0 && b0.bpm ? b0.bpm + ' bpm' : '— bpm'; $('#bpmLive').textContent = $('#stBpm').textContent;
   $('#stTipo').textContent = '—'; $('#stBlock').textContent = ''; $('#stProg').textContent = ''; $('#stSrc').textContent = b0 ? fonteLabel(b0.fonte) : '';
@@ -762,15 +887,22 @@ function prepareStage(lib) {
 function renderStage() {
   const bl = cur(); if (!bl) return;
   const e = bl.tipo === 'esercizio' ? exById(bl.ex) : null;
-  $('#stTipo').textContent = P.libero ? 'libera' : ({ esercizio: 'Esercizio', camminata: 'Camminata', pausa: 'Pausa' }[bl.tipo]);
+  const c = bl.tipo === 'combinazione' ? comboById(bl.combo) : null;
+  $('#stTipo').textContent = P.libero ? 'libera' : ({ esercizio: 'Esercizio', combinazione: 'Combinazione', camminata: 'Camminata', pausa: 'Pausa' }[bl.tipo]);
   $('#stTipo').className = 'chip';
   $('#stBlock').textContent = P.libero ? '' : `blocco ${P.i + 1} di ${P.sc.blocchi.length}`;
   $('#stTitle').textContent = blockTitle(bl);
-  $('#stDesc').textContent = e ? e.desc : (bl.desc || (bl.tipo === 'camminata' ? 'Bastoncino a terra sul battito, passo regolare.' : 'Respira, bevi un sorso d’acqua.'));
+  $('#stDesc').textContent = e ? e.desc : c ? comboSeq(c, true) : (bl.desc || (bl.tipo === 'camminata' ? 'Bastoncino a terra sul battito, passo regolare.' : 'Respira, bevi un sorso d’acqua.'));
   $('#stBpm').textContent = bl.tipo === 'pausa' ? 'pausa' : bl.bpm + ' bpm'; $('#bpmLive').textContent = bl.tipo === 'pausa' ? '—' : bl.bpm + ' bpm';
   $('#stSrc').textContent = bl.tipo === 'pausa' ? 'silenzio' : fonteLabel(bl.fonte);
-  $('#stProg').textContent = bl.tipo === 'esercizio' ? `${bl.misure} serie da ${bl.tempi}` : (bl.tipo === 'camminata' && !P.libero ? fmt(bl.minuti * 60) : '');
-  const tempi = +bl.tempi || 4; $('#dots').innerHTML = bl.tipo === 'pausa' ? '' : '<i></i>'.repeat(tempi);
+  $('#stProg').textContent = bl.tipo === 'esercizio' ? `${bl.misure} serie da ${bl.tempi}` : c ? `${bl.misure} frasi da ${c.frase}` : (bl.tipo === 'camminata' && !P.libero ? fmt(bl.minuti * 60) : '');
+  const tempi = blockTempi(bl);
+  if (c) {
+    let cells = ''; c.seg.forEach(s => { cells += `<i class="seg a-${s.a}"></i>`.repeat(s.n); });
+    $('#dots').innerHTML = cells; $('#dots').className = c.frase > 8 ? 'd16' : '';
+    const a0 = c.seg[0].a; $('#stAndCur').textContent = ANDATURE[a0].n; $('#stAndCur').style.color = ACOL[a0];
+    $('#stAndNext').innerHTML = c.seg.length > 1 ? `poi <b>${esc(ANDATURE[c.seg[1].a].n)}</b>` : ''; $('#stAnd').className = 'on';
+  } else { $('#dots').innerHTML = bl.tipo === 'pausa' ? '' : '<i></i>'.repeat(tempi); $('#dots').className = ''; $('#stAnd').className = ''; }
   $('#stCount').textContent = bl.tipo === 'pausa' ? '' : '…'; $('#stCount').className = '';
   const nx = !P.libero && P.sc.blocchi[P.i + 1];
   $('#stNext').className = ''; $('#stNext').innerHTML = nx ? `Prossimo: <b>${esc(blockTitle(nx))}</b> · ${nx.tipo === 'pausa' ? nx.secondi + ' s' : nx.bpm + ' bpm'}` : (P.libero ? '' : 'Ultimo blocco');
@@ -812,7 +944,7 @@ function renderScBlocks() {
   $('#scDur').textContent = `${bl.length} blocchi · durata circa ${fmt(bl.reduce((a, b) => a + blockSec(b), 0))}`;
   $('#scBlocks').innerHTML = bl.map((b, i) => `<div class="it" data-i="${i}">
     <span class="n">${i + 1}</span><span class="tag ${b.tipo.slice(0, 2)}">${b.tipo}</span>
-    <span class="grow">${esc(blockTitle(b))}<div class="muted">${b.tipo === 'pausa' ? b.secondi + ' s' : `${b.bpm} bpm · ${b.tipo === 'esercizio' ? b.misure + '×' + b.tempi + ' tempi' : b.minuti + ' min'} · ${esc(fonteLabel(b.fonte))}`}</div></span>
+    <span class="grow">${esc(blockTitle(b))}<div class="muted">${b.tipo === 'pausa' ? b.secondi + ' s' : `${b.bpm} bpm · ${b.tipo === 'esercizio' ? b.misure + '×' + b.tempi + ' tempi' : b.tipo === 'combinazione' ? b.misure + '×' + blockTempi(b) + ' tempi' : b.minuti + ' min'} · ${esc(fonteLabel(b.fonte))}`}</div></span>
     <button class="small" data-act="up">↑</button><button class="small" data-act="down">↓</button><button class="small" data-act="edit">✎</button></div>`).join('') || '<div class="muted" style="padding:8px">Nessun blocco: aggiungine uno.</div>';
 }
 function fonteOptions(sel) {
@@ -825,8 +957,9 @@ function exOptions(sel) {
 }
 function openBlock(idx) {
   editBlockIdx = idx;
-  const b = idx >= 0 ? editSc.blocchi[idx] : { tipo: 'esercizio', ex: 'spinta_bast', tempi: 4, misure: 4, bpm: 115, fonte: (editSc.blocchi.at(-1) || {}).fonte || 'base:leggero', minuti: 5, secondi: 60 };
-  $('#bTipo').value = b.tipo; $('#bEx').innerHTML = exOptions(b.ex); $('#bTempi').value = b.tempi || 4; $('#bMisure').value = b.misure || 4;
+  const b = idx >= 0 ? editSc.blocchi[idx] : { tipo: 'esercizio', ex: 'marcia', tempi: 8, misure: 4, bpm: 115, combo: BASE_COMBO[0].id, fonte: (editSc.blocchi.at(-1) || {}).fonte || 'base:leggero', minuti: 5, secondi: 60 };
+  $('#bTipo').value = b.tipo; $('#bEx').innerHTML = exOptions(b.ex);
+  $('#bCombo').innerHTML = comboOptions(b.combo || BASE_COMBO[0].id); $('#bRip').value = b.tipo === 'combinazione' ? (b.misure || 4) : 4; comboInfoUi(); $('#bTempi').value = b.tempi || 4; $('#bMisure').value = b.misure || 4;
   $('#bTitolo').value = b.tipo === 'camminata' ? (b.titolo || '') : ''; $('#bMinuti').value = b.minuti || 5; $('#bTempiCa').value = b.tempi || 4;
   $('#bTitoloPa').value = b.tipo === 'pausa' ? (b.titolo || '') : ''; $('#bSecondi').value = b.secondi || 60;
   $('#bBpm').value = b.bpm || 120; $('#bFonte').innerHTML = fonteOptions(b.fonte || 'base:leggero');
@@ -834,11 +967,14 @@ function openBlock(idx) {
   $('#bDel').style.visibility = idx >= 0 ? 'visible' : 'hidden';
   blockTipoUi(); $('#dlgBlock').showModal();
 }
-function blockTipoUi() { const t = $('#bTipo').value; $('#bEsBox').style.display = t === 'esercizio' ? '' : 'none'; $('#bCaBox').style.display = t === 'camminata' ? '' : 'none'; $('#bPaBox').style.display = t === 'pausa' ? '' : 'none'; $('#bMusBox').style.display = t === 'pausa' ? 'none' : ''; }
+function comboOptions(sel) { return allCombo().map(c => `<option value="${c.id}" ${sel === c.id ? 'selected' : ''}>${esc(c.nome)} (${c.frase} tempi)</option>`).join(''); }
+function comboInfoUi() { const c = comboById($('#bCombo').value); $('#bCoInfo').textContent = c ? comboSeq(c, true) : ''; }
+function blockTipoUi() { const t = $('#bTipo').value; $('#bCoBox').style.display = t === 'combinazione' ? '' : 'none'; $('#bEsBox').style.display = t === 'esercizio' ? '' : 'none'; $('#bCaBox').style.display = t === 'camminata' ? '' : 'none'; $('#bPaBox').style.display = t === 'pausa' ? '' : 'none'; $('#bMusBox').style.display = t === 'pausa' ? 'none' : ''; }
 function saveBlock() {
   const t = $('#bTipo').value; const old = editBlockIdx >= 0 ? editSc.blocchi[editBlockIdx] : { id: uid() };
   let b = { id: old.id, tipo: t };
   if (t === 'esercizio') Object.assign(b, { ex: $('#bEx').value, tempi: +$('#bTempi').value, misure: Math.max(1, +$('#bMisure').value || 1) });
+  if (t === 'combinazione') { const c = comboById($('#bCombo').value); if (!c) return toast('Scegli una combinazione'); Object.assign(b, { combo: c.id, tempi: c.frase, misure: Math.max(1, +$('#bRip').value || 1) }); }
   if (t === 'camminata') Object.assign(b, { titolo: $('#bTitolo').value.trim() || 'Camminata ritmica', minuti: Math.max(0.5, +$('#bMinuti').value || 1), tempi: +$('#bTempiCa').value });
   if (t === 'pausa') Object.assign(b, { titolo: $('#bTitoloPa').value.trim() || 'Pausa', secondi: Math.max(5, +$('#bSecondi').value || 30) });
   if (t !== 'pausa') Object.assign(b, { bpm: Math.max(60, Math.min(180, +$('#bBpm').value || 120)), fonte: $('#bFonte').value });
@@ -853,6 +989,7 @@ function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').re
 function importScaletta(obj) {
   const list = Array.isArray(obj) ? obj : (obj.scalette || [obj]); let n = 0;
   (obj.esercizi || []).forEach(e => { if (!exById(e.id)) { S.customEx.push(e); n++; } }); LS.set('customEx', S.customEx);
+  (obj.combinazioni || []).forEach(c => { if (c && Array.isArray(c.seg) && !comboById(c.id)) S.customCombo.push(c); }); saveCombo();
   list.forEach(s => { if (s && Array.isArray(s.blocchi)) { s.id = uid(); s.blocchi.forEach(b => b.id = uid()); S.scalette.push(s); } });
   saveSc(); renderScList(); fillSelScaletta(); toast('Importazione completata');
 }
@@ -933,7 +1070,7 @@ $$('nav button').forEach(b => b.onclick = () => {
   $$('nav button').forEach(x => x.classList.toggle('on', x === b));
   $$('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + b.dataset.v));
   if (b.dataset.v === 'scalette') renderScList();
-  if (b.dataset.v === 'esercizi') renderExList();
+  if (b.dataset.v === 'esercizi') { renderComboList(); renderExList(); }
   if (b.dataset.v === 'musica') renderTracks();
   if (b.dataset.v === 'serata' && !P.running) { fillSelScaletta(); prepareStage(P.libero); }
 });
@@ -963,13 +1100,14 @@ $('#scBlocks').onclick = e => { const b = e.target.closest('button'); const it =
   const bl = editSc.blocchi; if (b.dataset.act === 'up' && i > 0) [bl[i - 1], bl[i]] = [bl[i], bl[i - 1]]; if (b.dataset.act === 'down' && i < bl.length - 1) [bl[i + 1], bl[i]] = [bl[i], bl[i + 1]];
   saveSc(); renderScBlocks(); };
 $('#btnAddBlock').onclick = () => openBlock(-1);
-$('#btnExport').onclick = () => { const used = [...new Set(editSc.blocchi.map(b => b.ex).filter(Boolean))]; download(slug(editSc.nome) + '.json', Object.assign(clone(editSc), { esercizi: S.customEx.filter(e => used.includes(e.id)) })); };
+$('#btnExport').onclick = () => { const used = [...new Set(editSc.blocchi.map(b => b.ex).filter(Boolean))]; const usedC = editSc.blocchi.map(b => b.combo).filter(Boolean); download(slug(editSc.nome) + '.json', Object.assign(clone(editSc), { esercizi: S.customEx.filter(e => used.includes(e.id)), combinazioni: S.customCombo.filter(c => usedC.includes(c.id)) })); };
 $('#btnDup').onclick = () => { const c = clone(editSc); c.id = uid(); c.nome += ' (copia)'; c.blocchi.forEach(b => b.id = uid()); S.scalette.push(c); saveSc(); openScEditor(c.id); toast('Scaletta duplicata'); };
 $('#btnDelSc').onclick = () => { if (!armed($('#btnDelSc'))) return; S.scalette = S.scalette.filter(s => s !== editSc); if (!S.scalette.length) S.scalette = [scalettaTipo()]; saveSc(); closeScEditor(); };
 $('#btnImport').onclick = () => $('#fileImport').click();
 $('#fileImport').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { importScaletta(JSON.parse(await f.text())); } catch (er) { toast('File non valido'); } e.target.value = ''; };
 
 $('#bTipo').onchange = blockTipoUi;
+$('#bCombo').onchange = comboInfoUi;
 $('#bEx').onchange = () => { const ex = exById($('#bEx').value); if (ex) $('#bTempi').value = ex.tempi; };
 $('#bPresets').onclick = e => { const b = e.target.closest('button'); if (b) $('#bBpm').value = b.dataset.b; };
 $('#bSave').onclick = saveBlock;
@@ -994,13 +1132,71 @@ $('#trList').onchange = async e => { const i = e.target.closest('input[data-f]')
 $('#baseTry').innerHTML = Object.entries(PATTERNS).map(([k, v]) => `<button class="small" data-p="${k}">▶ ${v}</button>`).join('') + '<button class="small" data-p="">⏹</button>';
 $('#baseTry').onclick = e => { const b = e.target.closest('button'); if (!b) return; if (P.running) return toast('Ferma prima la serata'); if (preview.id) stopPreview(); if (!b.dataset.p) return base.stop(); base.start(120, b.dataset.p, 0); };
 
-const optMap = { optVoice: 'voice', optBell: 'bell', optCount: 'count', optWake: 'wake' };
+const optMap = { optVoice: 'voice', optBell: 'bell', optCount: 'count', optSwap: 'swap', optWake: 'wake' };
 Object.entries(optMap).forEach(([id, k]) => { $('#' + id).checked = !!S.opts[k]; $('#' + id).onchange = e => { S.opts[k] = e.target.checked; saveOpts(); if (k === 'voice' && e.target.checked) { S.opts.voice = true; speak('Voce attiva'); } }; });
 const volMap = { volMaster: 'vMaster', volBase: 'vBase', volMusic: 'vMusic', volFx: 'vFx' };
 Object.entries(volMap).forEach(([id, k]) => { $('#' + id).value = S.opts[k]; $('#' + id).oninput = e => { S.opts[k] = +e.target.value; applyVolumes(); saveOpts(); }; });
-$('#btnBackup').onclick = () => download('musicale-nw-backup.json', { app: 'musicale-nw', versione: 1, scalette: S.scalette, esercizi: S.customEx });
+$('#btnBackup').onclick = () => download('musicale-nw-backup.json', { app: 'musicale-nw', versione: 2, scalette: S.scalette, esercizi: S.customEx, combinazioni: S.customCombo });
 $('#btnRestore').onclick = () => $('#fileRestore').click();
 $('#fileRestore').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); importScaletta(o); } catch (er) { toast('File non valido'); } e.target.value = ''; };
+
+
+/* =========================================================
+   COMBINAZIONI DI ANDATURE
+   ========================================================= */
+let editCombo = null, draftCombo = null;
+function renderComboList() {
+  $('#comboList').innerHTML = allCombo().map(c => {
+    const custom = S.customCombo.some(x => x.id === c.id);
+    const chips = c.seg.map(s => `<span class="segchip a-${s.a}">${esc(ANDATURE[s.a].s)} ${s.n}</span>`).join(' ');
+    return `<div class="card"><div class="row"><b class="grow">${esc(c.nome)}</b><span class="chip">${c.frase} tempi</span>
+      <button class="small" data-combo="${c.id}">${custom ? '✎' : 'Copia e modifica'}</button></div>
+      <div class="chips" style="margin-top:8px">${chips}</div></div>`;
+  }).join('');
+}
+function openCombo(id) {
+  const c = id ? comboById(id) : null;
+  editCombo = c && S.customCombo.includes(c) ? c : null; // gli esempi non si modificano: si copiano
+  draftCombo = c ? clone(c) : { nome: '', frase: 8, seg: [{ a: 'alt', n: 4 }, { a: 'p2', n: 4 }] };
+  if (c && !editCombo) draftCombo.nome = c.nome + ' (mia)';
+  $('#cNome').value = draftCombo.nome; $('#cFrase').value = draftCombo.frase;
+  $('#cDel').style.visibility = editCombo ? 'visible' : 'hidden';
+  renderSegs(); $('#dlgCombo').showModal();
+}
+function renderSegs() {
+  const opts = sel => Object.entries(ANDATURE).map(([k, a]) => `<option value="${k}" ${sel === k ? 'selected' : ''}>${a.n}</option>`).join('');
+  $('#cSegs').innerHTML = draftCombo.seg.map((s, i) => `<div class="segRow" data-i="${i}">
+    <select data-f="a">${opts(s.a)}</select><input type="number" data-f="n" min="1" max="16" value="${s.n}">
+    <button class="danger" data-act="del" title="Togli">✕</button></div>`).join('');
+  checkCombo();
+}
+function checkCombo() {
+  draftCombo.frase = +$('#cFrase').value;
+  const err = comboCheck(draftCombo);
+  $('#cCheck').textContent = err || `✓ ${comboSeq(draftCombo)} = ${draftCombo.frase} tempi`;
+  $('#cCheck').className = err ? 'ko' : 'ok'; $('#cSave').disabled = !!err;
+}
+$('#btnNewCombo').onclick = () => openCombo(null);
+$('#comboList').onclick = e => { const b = e.target.closest('[data-combo]'); if (b) openCombo(b.dataset.combo); };
+$('#cFrase').onchange = checkCombo;
+$('#cSegs').oninput = e => { const r = e.target.closest('.segRow'); if (!r) return; const s = draftCombo.seg[+r.dataset.i];
+  if (e.target.dataset.f === 'a') s.a = e.target.value; if (e.target.dataset.f === 'n') s.n = Math.round(+e.target.value || 0); checkCombo(); };
+$('#cSegs').onclick = e => { const b = e.target.closest('[data-act="del"]'); if (!b) return; draftCombo.seg.splice(+b.closest('.segRow').dataset.i, 1); renderSegs(); };
+$('#cAddSeg').onclick = () => { const tot = draftCombo.seg.reduce((x, s) => x + s.n, 0); draftCombo.seg.push({ a: 'alt', n: Math.max(1, draftCombo.frase - tot) }); renderSegs(); };
+$('#cSave').onclick = () => {
+  draftCombo.nome = $('#cNome').value.trim() || comboSeq(draftCombo); checkCombo(); if (comboCheck(draftCombo)) return;
+  const o = { nome: draftCombo.nome, frase: draftCombo.frase, seg: draftCombo.seg.map(s => ({ a: s.a, n: s.n })) };
+  if (editCombo) Object.assign(editCombo, o); else S.customCombo.push(Object.assign({ id: 'c_' + uid() }, o));
+  saveCombo(); renderComboList(); $('#dlgCombo').close(); toast('Combinazione salvata');
+};
+$('#cCancel').onclick = () => $('#dlgCombo').close();
+$('#cDel').onclick = () => {
+  if (!editCombo) return;
+  const inUse = S.scalette.some(sc => sc.blocchi.some(b => b.combo === editCombo.id));
+  if (inUse) return toast('È usata in una scaletta: togli prima il blocco');
+  if (!armed($('#cDel'))) return;
+  S.customCombo = S.customCombo.filter(c => c !== editCombo); saveCombo(); renderComboList(); $('#dlgCombo').close();
+};
 
 /* avvio */
 fillSelScaletta(); prepareStage(); loadTracks(); requestAnimationFrame(tick);
